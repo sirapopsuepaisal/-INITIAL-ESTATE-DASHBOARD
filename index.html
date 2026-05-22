@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Dashboard | Initial Estate 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -289,6 +290,76 @@
         /* Animations */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .section { animation: fadeInUp 0.5s ease forwards; }
+
+        /* Excel Upload Button */
+        .upload-excel-btn {
+            background: rgba(255,255,255,0.12);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Sarabun','Inter',sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .upload-excel-btn:hover { background: rgba(255,255,255,0.22); }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 520px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--primary); display:flex; align-items:center; gap:8px; }
+        .modal-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 20px; }
+        .template-info { background: var(--bg); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+        .template-info strong { font-size: 12px; color: var(--text); display:block; margin-bottom:6px; }
+        .template-info ul { font-size: 12px; color: var(--text-light); padding-left: 16px; margin:0; }
+        .template-info li { margin-bottom: 4px; }
+        .template-info code { background:#e8e5df; padding:1px 5px; border-radius:3px; font-family:monospace; font-size:11px; }
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 36px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--secondary);
+            background: rgba(181,133,94,0.05);
+        }
+        .drop-zone .dz-icon { font-size: 34px; color: var(--border); margin-bottom: 10px; display:block; transition: color 0.2s; }
+        .drop-zone.drag-over .dz-icon { color: var(--secondary); }
+        .drop-zone p { font-size: 13px; color: var(--text-light); margin: 0; }
+        .drop-zone strong { color: var(--secondary); }
+        .drop-zone .dz-ext { font-size: 11px; margin-top: 6px; opacity: 0.6; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+        .btn-download { background: var(--success); color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family:inherit; display:flex; align-items:center; gap:6px; }
+        .btn-download:hover { opacity: 0.9; }
+        .btn-close-modal { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-family:inherit; }
+        .upload-status { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; display: none; }
+        .upload-status.success { background: rgba(73,123,104,0.1); color: var(--success); border: 1px solid rgba(73,123,104,0.3); }
+        .upload-status.error   { background: rgba(179,91,78,0.1);  color: var(--danger);  border: 1px solid rgba(179,91,78,0.3); }
     </style>
 </head>
 <body>
@@ -304,6 +375,9 @@
     </div>
     <div class="header-right">
         <div class="header-date"><i class="fas fa-calendar-alt"></i>&nbsp; ข้อมูล ณ Q1-Q2 2026</div>
+        <button class="upload-excel-btn" onclick="openUploadModal()">
+            <i class="fas fa-file-excel"></i> อัปโหลด Excel
+        </button>
         <div class="header-badge">MANAGEMENT DASHBOARD</div>
     </div>
 </div>
@@ -1441,7 +1515,192 @@ function applyFilters() {
 // ── INIT ─────────────────────────────────────────────────────
 updateMonthOptions('all', 'all');
 updateDashboard('all', 'all');
+
+// ── EXCEL UPLOAD ─────────────────────────────────────────────
+function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('active');
+}
+function closeUploadModal() {
+    document.getElementById('uploadModal').classList.remove('active');
+    document.getElementById('uploadStatus').style.display = 'none';
+    document.getElementById('excelInput').value = '';
+    const icon = document.querySelector('#dropZone .dz-icon');
+    icon.className = 'fas fa-cloud-upload-alt dz-icon';
+    icon.style.color = '';
+}
+function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processExcel(file);
+}
+function handleFileInput(input) {
+    if (input.files[0]) processExcel(input.files[0]);
+}
+function showUploadStatus(type, msg) {
+    const el = document.getElementById('uploadStatus');
+    el.className = `upload-status ${type}`;
+    el.innerHTML = msg;
+    el.style.display = 'block';
+}
+function processExcel(file) {
+    const icon = document.querySelector('#dropZone .dz-icon');
+    icon.className = 'fas fa-spinner fa-spin dz-icon';
+    icon.style.color = 'var(--secondary)';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb = XLSX.read(e.target.result, { type: 'array' });
+            const parsed = parseExcelData(wb);
+            applyExcelData(parsed);
+            icon.className = 'fas fa-check-circle dz-icon';
+            icon.style.color = 'var(--success)';
+            showUploadStatus('success', `<i class="fas fa-check-circle"></i>&nbsp; อัปโหลดสำเร็จ — <strong>${file.name}</strong> — Dashboard อัปเดตแล้ว`);
+            setTimeout(() => closeUploadModal(), 2200);
+        } catch (err) {
+            icon.className = 'fas fa-times-circle dz-icon';
+            icon.style.color = 'var(--danger)';
+            showUploadStatus('error', `<i class="fas fa-exclamation-circle"></i>&nbsp; ${err.message}`);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+function parseExcelData(wb) {
+    const result = {};
+    if (wb.SheetNames.includes('Monthly')) {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets['Monthly'], { defval: 0 });
+        if (!rows.length) throw new Error('Sheet "Monthly" ว่างเปล่า');
+        result.months        = rows.map(r => String(r['เดือน'] || ''));
+        result.transferMB    = { target: rows.map(r => +r['โอน_เป้า_MB']||0),     actual: rows.map(r => +r['โอน_จริง_MB']||0) };
+        result.transferUnits = { target: rows.map(r => +r['โอน_เป้า_ยูนิต']||0), actual: rows.map(r => +r['โอน_จริง_ยูนิต']||0) };
+        result.presaleMB     = { target: rows.map(r => +r['Presale_เป้า_MB']||0), actual: rows.map(r => +r['Presale_จริง_MB']||0) };
+        result.presaleUnits  = { target: rows.map(r => +r['Presale_เป้า_ยูนิต']||0), actual: rows.map(r => +r['Presale_จริง_ยูนิต']||0) };
+        result.pipeline = {
+            qc:       rows.map(r => +r['QC_ผ่าน']||0),
+            inspect:  rows.map(r => +r['ลูกค้าตรวจ']||0),
+            receive:  rows.map(r => +r['ลูกค้ารับห้อง']||0),
+            transfer: rows.map(r => +r['โอน_จริง_ยูนิต']||0)
+        };
+        result.walkin     = rows.map(r => +r['Walk_in']||0);
+        result.conversion = rows.map(r => +r['Conversion']||0);
+        result.hasMonthly = true;
+    }
+    if (wb.SheetNames.includes('Bank')) {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets['Bank'], { defval: 0 });
+        result.bankLabels = rows.map(r => String(r['ธนาคาร']||''));
+        result.bankData   = rows.map(r => +r['จำนวนเคส']||0);
+        result.hasBank    = true;
+    }
+    if (!result.hasMonthly && !result.hasBank)
+        throw new Error('ไม่พบ Sheet "Monthly" หรือ "Bank" — กรุณาใช้ Template ที่ถูกต้อง');
+    return result;
+}
+function _sum(arr) { return arr.reduce((a,b)=>a+b,0); }
+function applyExcelData(parsed) {
+    if (parsed.hasMonthly) {
+        const n = parsed.months.length;
+        const sl = (arr,s,e) => arr.slice(s,e);
+        const netRatio = DATA.all.kpi.grossPresaleMB ? DATA.all.kpi.netPresaleMB / DATA.all.kpi.grossPresaleMB : 0.87;
+
+        function fillQuarter(target, months, s, e) {
+            target.months        = sl(months, s, e);
+            target.transferMB    = { target:sl(parsed.transferMB.target,s,e),    actual:sl(parsed.transferMB.actual,s,e) };
+            target.transferUnits = { target:sl(parsed.transferUnits.target,s,e), actual:sl(parsed.transferUnits.actual,s,e) };
+            target.presaleMB     = { target:sl(parsed.presaleMB.target,s,e),     actual:sl(parsed.presaleMB.actual,s,e) };
+            target.presaleUnits  = { target:sl(parsed.presaleUnits.target,s,e),  actual:sl(parsed.presaleUnits.actual,s,e) };
+            target.pipeline = { qc:sl(parsed.pipeline.qc,s,e), inspect:sl(parsed.pipeline.inspect,s,e), receive:sl(parsed.pipeline.receive,s,e), transfer:sl(parsed.pipeline.transfer,s,e) };
+            target.walkin     = sl(parsed.walkin,s,e);
+            target.conversion = sl(parsed.conversion,s,e);
+            const k = target.kpi;
+            k.transferMB      = _sum(target.transferMB.actual);
+            k.targetTransferMB= _sum(target.transferMB.target);
+            k.transferUnits   = _sum(target.transferUnits.actual);
+            k.targetTransferUnits = _sum(target.transferUnits.target);
+            k.grossPresaleMB  = _sum(target.presaleMB.actual);
+            k.targetPresaleMB = _sum(target.presaleMB.target);
+            k.grossPresaleUnits = _sum(target.presaleUnits.actual);
+            k.targetPresaleUnits= _sum(target.presaleUnits.target);
+            k.walkin  = _sum(target.walkin);
+            k.qcPass  = _sum(target.pipeline.qc);
+            k.inspect = _sum(target.pipeline.inspect);
+            k.receive = _sum(target.pipeline.receive);
+            k.netPresaleMB    = k.grossPresaleMB * netRatio;
+            k.targetNetPresale= k.targetPresaleMB;
+        }
+        fillQuarter(DATA.all, parsed.months, 0, n);
+        if (n >= 1) fillQuarter(DATA.Q1, parsed.months, 0, Math.min(3, n));
+        if (n >= 4) fillQuarter(DATA.Q2, parsed.months, 3, Math.min(6, n));
+    }
+    applyFilters();
+    if (parsed.hasBank && charts.bankDonut) {
+        charts.bankDonut.data.labels = parsed.bankLabels;
+        charts.bankDonut.data.datasets[0].data = parsed.bankData;
+        charts.bankDonut.update();
+    }
+}
+function downloadTemplate() {
+    const wb = XLSX.utils.book_new();
+    const monthly = [
+        ['เดือน','โอน_เป้า_MB','โอน_จริง_MB','โอน_เป้า_ยูนิต','โอน_จริง_ยูนิต','Presale_เป้า_MB','Presale_จริง_MB','Presale_เป้า_ยูนิต','Presale_จริง_ยูนิต','QC_ผ่าน','ลูกค้าตรวจ','ลูกค้ารับห้อง','Walk_in','Conversion'],
+        ['ม.ค.',23.03,18.955,4,5,48.93,42.172,9,8,3,5,7,65,9.13],
+        ['ก.พ.',36.56,7.668,7,1,78.86,32.276,16,8,4,5,5,48,7.00],
+        ['มี.ค.',50.09,21.788,10,6,83.71,61.37,20,16,6,4,2,41,3.06],
+        ['เม.ย.',30.58,25.693,7,8,69.52,68.0,16,16,1,1,5,54,3.88],
+        ['พ.ค.',36.49,0,9,0,80.33,21.111,18,6,1,4,3,35,6.33],
+        ['มิ.ย.',0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(monthly);
+    ws1['!cols'] = Array(14).fill({ wch: 20 });
+    XLSX.utils.book_append_sheet(wb, ws1, 'Monthly');
+    const bank = [
+        ['ธนาคาร','จำนวนเคส'],
+        ['GHB',105],['KTB',28],['TMB',40],['SCB',29],['K-bank',10],['GSB',23],['Bay',1],['BBL',3]
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(bank);
+    ws2['!cols'] = [{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Bank');
+    XLSX.writeFile(wb, 'Dashboard_Template_2026.xlsx');
+}
 </script>
+
+<!-- Excel Upload Modal -->
+<div class="modal-overlay" id="uploadModal" onclick="if(event.target===this)closeUploadModal()">
+    <div class="modal-box">
+        <div class="modal-title">
+            <i class="fas fa-file-excel" style="color:#1D6F42"></i>
+            อัปโหลดข้อมูล Excel
+        </div>
+        <div class="modal-subtitle">Dashboard จะอัปเดตทันทีหลังอัปโหลด — ไม่ต้องบันทึกหรือ refresh</div>
+
+        <div class="template-info">
+            <strong>รูปแบบ Excel ที่รองรับ (2 Sheet):</strong>
+            <ul>
+                <li>Sheet <code>Monthly</code> — ข้อมูลรายเดือน: โอน, Presale, Walk-in, Pipeline, Conversion</li>
+                <li>Sheet <code>Bank</code> — จำนวนเคสแยกธนาคาร (GHB, KTB, TMB, SCB …)</li>
+            </ul>
+        </div>
+
+        <div class="drop-zone" id="dropZone"
+            onclick="document.getElementById('excelInput').click()"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleDrop(event)">
+            <i class="fas fa-cloud-upload-alt dz-icon"></i>
+            <p>ลาก &amp; วางไฟล์ Excel ที่นี่<br>หรือ <strong>คลิกเพื่อเลือกไฟล์</strong></p>
+            <p class="dz-ext">.xlsx &nbsp;/&nbsp; .xls</p>
+        </div>
+        <input type="file" id="excelInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileInput(this)">
+
+        <div class="upload-status" id="uploadStatus"></div>
+
+        <div class="modal-actions">
+            <button class="btn-download" onclick="downloadTemplate()">
+                <i class="fas fa-download"></i> ดาวน์โหลด Template
+            </button>
+            <button class="btn-close-modal" onclick="closeUploadModal()">ปิด</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
