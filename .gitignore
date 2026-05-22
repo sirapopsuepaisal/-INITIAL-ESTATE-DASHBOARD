@@ -1,0 +1,8 @@
+node_modules/
+*.xlsx
+*.docx
+~$*
+package-lock.json
+package.json
+extract_data.js
+read_excel.js

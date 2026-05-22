@@ -1,0 +1,1305 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard | Initial Estate 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1B2A4A;
+            --primary-light: #2C4270;
+            --secondary: #C9A84C;
+            --secondary-light: #E0C76E;
+            --accent: #3B82F6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg: #F0F2F5;
+            --card-bg: #FFFFFF;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 24px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo {
+            width: 48px; height: 48px;
+            background: var(--secondary);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 20px; color: var(--primary);
+        }
+        .header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .header-title p { font-size: 13px; opacity: 0.8; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-date {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .header-badge {
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            padding: 12px 32px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .filter-bar label { font-size: 13px; font-weight: 600; color: var(--text-light); }
+        .filter-bar select, .filter-bar input {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Sarabun', sans-serif;
+            background: white;
+            cursor: pointer;
+        }
+        .filter-bar select:focus, .filter-bar input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        /* Main Container */
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px; }
+
+        /* Section */
+        .section { margin-bottom: 28px; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .section-header i {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--secondary);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .section-header h2 { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .section-header span { font-size: 12px; color: var(--text-light); margin-left: auto; }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .kpi-card.blue::before { background: var(--accent); }
+        .kpi-card.green::before { background: var(--success); }
+        .kpi-card.gold::before { background: var(--secondary); }
+        .kpi-card.red::before { background: var(--danger); }
+        .kpi-card.purple::before { background: #8B5CF6; }
+        .kpi-label { font-size: 12px; color: var(--text-light); font-weight: 500; margin-bottom: 4px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+        .kpi-value small { font-size: 14px; color: var(--text-light); font-weight: 400; }
+        .kpi-sub { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+        .kpi-sub.up { color: var(--success); }
+        .kpi-sub.down { color: var(--danger); }
+        .kpi-sub.neutral { color: var(--text-light); }
+        .kpi-progress { margin-top: 8px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+        .kpi-progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+        /* Chart Cards */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .chart-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .chart-card.full { grid-column: 1 / -1; }
+        .chart-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
+        .chart-subtitle { font-size: 11px; color: var(--text-light); margin-top: -8px; margin-bottom: 12px; }
+
+        /* Funnel */
+        .funnel { padding: 10px 0; }
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .funnel-bar-wrap { flex: 1; margin: 0 12px; }
+        .funnel-bar {
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            transition: width 1s ease;
+        }
+        .funnel-label { width: 120px; font-size: 12px; font-weight: 500; text-align: right; }
+        .funnel-rate { width: 80px; font-size: 12px; font-weight: 600; text-align: center; }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table tr:hover td { background: #F8FAFC; }
+        .data-table .num { text-align: right; font-family: 'Inter', monospace; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-green { background: #D1FAE5; color: #065F46; }
+        .badge-red { background: #FEE2E2; color: #991B1B; }
+        .badge-yellow { background: #FEF3C7; color: #92400E; }
+        .badge-blue { background: #DBEAFE; color: #1E40AF; }
+
+        /* Insight Box */
+        .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .insight-box {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+        }
+        .insight-box.positive { border-color: var(--success); }
+        .insight-box.negative { border-color: var(--danger); }
+        .insight-box.warning { border-color: var(--warning); }
+        .insight-box.info { border-color: var(--accent); }
+        .insight-box.strategy { border-color: #8B5CF6; }
+        .insight-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .insight-list { list-style: none; padding: 0; }
+        .insight-list li {
+            font-size: 13px;
+            padding: 4px 0;
+            padding-left: 16px;
+            position: relative;
+            color: var(--text);
+        }
+        .insight-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .container { padding: 12px; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .header { padding: 12px 16px; flex-direction: column; gap: 8px; }
+            .filter-bar { padding: 12px 16px; }
+        }
+
+        /* Print */
+        @media print {
+            .header { position: static; }
+            .filter-bar { display: none; }
+            .kpi-card:hover { transform: none; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .section { animation: fadeInUp 0.5s ease forwards; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-left">
+        <div class="header-logo">IE</div>
+        <div class="header-title">
+            <h1>INITIAL ESTATE EXECUTIVE DASHBOARD</h1>
+            <p>บริษัท อินนิเชียล เอสเตท จำกัด — Lead & Lag Performance 2026</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="header-date"><i class="fas fa-calendar-alt"></i>&nbsp; ข้อมูล ณ Q1-Q2 2026</div>
+        <div class="header-badge">MANAGEMENT DASHBOARD</div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <label><i class="fas fa-filter"></i>&nbsp; ตัวกรอง:</label>
+    <select id="filterQuarter" onchange="applyFilters()">
+        <option value="all">ทุกไตรมาส</option>
+        <option value="Q1">Q1 (ม.ค. - มี.ค.)</option>
+        <option value="Q2">Q2 (เม.ย. - มิ.ย.)</option>
+    </select>
+    <select id="filterProject" onchange="applyFilters()">
+        <option value="all">ทุกโครงการ</option>
+        <option value="pyve_ratchaphruek">PYVE ราชพฤกษ์</option>
+        <option value="pyve_ramintra">PYVE รามอินทรา</option>
+        <option value="thamm_bangna">The Thamm บางนา</option>
+    </select>
+    <select id="filterMonth">
+        <option value="all">ทุกเดือน</option>
+        <option value="jan">มกราคม</option>
+        <option value="feb">กุมภาพันธ์</option>
+        <option value="mar">มีนาคม</option>
+        <option value="apr">เมษายน</option>
+        <option value="may">พฤษภาคม</option>
+    </select>
+    <span style="margin-left:auto; font-size:12px; color:var(--text-light);">
+        <i class="fas fa-sync-alt"></i> อัพเดทล่าสุด: พ.ค. 2026
+    </span>
+</div>
+
+<div class="container">
+
+    <!-- ===== 1. EXECUTIVE SUMMARY ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-chart-line"></i>
+            <h2>Executive Summary — ภาพรวมธุรกิจ YTD 2026</h2>
+            <span id="summary-span">Q1 + Q2 (ข้อมูล Actual)</span>
+        </div>
+        <div id="kpi-row1" class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
+            <!-- Revenue Transfer -->
+            <div class="kpi-card gold">
+                <div class="kpi-label">ยอดโอน (Revenue)</div>
+                <div class="kpi-value">74.10 <small>MB</small></div>
+                <div class="kpi-sub neutral">เป้า 239.94 MB (30.9%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:30.9%;background:var(--secondary)"></div></div>
+            </div>
+            <!-- Transfer Units -->
+            <div class="kpi-card blue">
+                <div class="kpi-label">จำนวนโอน (Units)</div>
+                <div class="kpi-value">22 <small>ยูนิต</small></div>
+                <div class="kpi-sub neutral">เป้า 49 ยูนิต (44.9%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:44.9%;background:var(--accent)"></div></div>
+            </div>
+            <!-- Gross Presale -->
+            <div class="kpi-card green">
+                <div class="kpi-label">Gross Presale</div>
+                <div class="kpi-value">224.93 <small>MB</small></div>
+                <div class="kpi-sub neutral">เป้า 414.15 MB (54.3%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:54.3%;background:var(--success)"></div></div>
+            </div>
+            <!-- Presale Units -->
+            <div class="kpi-card purple">
+                <div class="kpi-label">Presale Units (Gross)</div>
+                <div class="kpi-value">54 <small>ยูนิต</small></div>
+                <div class="kpi-sub neutral">เป้า 92 ยูนิต (58.7%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:58.7%;background:#8B5CF6"></div></div>
+            </div>
+            <!-- Walk-in -->
+            <div class="kpi-card blue">
+                <div class="kpi-label">Walk-in ทั้งหมด</div>
+                <div class="kpi-value">243 <small>ราย</small></div>
+                <div class="kpi-sub neutral">เป้า 367 ราย (66.2%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:66.2%;background:var(--accent)"></div></div>
+            </div>
+        </div>
+
+        <!-- Second Row KPIs -->
+        <div id="kpi-row2" class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); margin-top: 16px;">
+            <div class="kpi-card green">
+                <div class="kpi-label">ห้องผ่าน QC</div>
+                <div class="kpi-value">15 <small>ยูนิต</small></div>
+                <div class="kpi-sub up"><i class="fas fa-arrow-up"></i> 130% ของเป้า Q1</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:53.6%;background:var(--success)"></div></div>
+            </div>
+            <div class="kpi-card blue">
+                <div class="kpi-label">ลูกค้าเข้าตรวจ</div>
+                <div class="kpi-value">19 <small>ราย</small></div>
+                <div class="kpi-sub neutral">เป้า 43 ราย (44.2%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:44.2%;background:var(--accent)"></div></div>
+            </div>
+            <div class="kpi-card gold">
+                <div class="kpi-label">ลูกค้ารับห้อง</div>
+                <div class="kpi-value">22 <small>ราย</small></div>
+                <div class="kpi-sub neutral">เป้า 48 ราย (45.8%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:45.8%;background:var(--secondary)"></div></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-label">Net Presale</div>
+                <div class="kpi-value">195.89 <small>MB</small></div>
+                <div class="kpi-sub neutral">เป้า 414.15 MB (47.3%)</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:47.3%;background:var(--success)"></div></div>
+            </div>
+            <div class="kpi-card red">
+                <div class="kpi-label">Conversion Rate</div>
+                <div class="kpi-value">5.15 <small>:1</small></div>
+                <div class="kpi-sub up"><i class="fas fa-arrow-up"></i> ดีกว่าเป้า 4.99:1</div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:97%;background:var(--success)"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 2. TRANSFER / REVENUE SECTION ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-money-bill-wave"></i>
+            <h2>ยอดโอน / Revenue — Transfer Performance</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">ยอดโอนรายเดือน (MB) — Target vs Actual</div>
+                <canvas id="chartTransferMB" height="250"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">จำนวนโอนรายเดือน (Units) — Target vs Actual</div>
+                <canvas id="chartTransferUnits" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3. PROCESS PIPELINE (QC / Inspection / Receive / Bank) ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-tasks"></i>
+            <h2>กระบวนการโอน — QC / ตรวจ / รับห้อง / ผลธนาคาร</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Pipeline กระบวนการโอนรายเดือน</div>
+                <canvas id="chartPipeline" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">สัดส่วนผลธนาคาร — ลาดกระบัง</div>
+                <canvas id="chartBankDonut" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4. PRESALE PERFORMANCE ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-handshake"></i>
+            <h2>Presale Performance — ยอดจอง</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Gross Presale รายเดือน (MB) — Target vs Actual</div>
+                <canvas id="chartPresaleMB" height="250"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Gross Presale รายเดือน (Units) — Target vs Actual</div>
+                <canvas id="chartPresaleUnits" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 5. SALES FUNNEL ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-filter"></i>
+            <h2>Sales Funnel — ช่องทางขาย YTD 2026</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Sales Funnel — จำนวนรายลูกค้าในแต่ละขั้นตอน</div>
+                <div id="funnel-container" class="funnel">
+                    <div class="funnel-step">
+                        <div class="funnel-label">Walk-in (1st)</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA)">243 ราย</div>
+                        </div>
+                        <div class="funnel-rate">100%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">2nd Walk++</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:14.4%;background:linear-gradient(90deg,#6366F1,#818CF8)">35 ราย</div>
+                        </div>
+                        <div class="funnel-rate badge-yellow badge">14.4%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">Gross Presale</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:22.2%;background:linear-gradient(90deg,#8B5CF6,#A78BFA)">54 ยูนิต</div>
+                        </div>
+                        <div class="funnel-rate badge-blue badge">22.2%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">Net Presale</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:18.1%;background:linear-gradient(90deg,#EC4899,#F472B6)">44 ยูนิต</div>
+                        </div>
+                        <div class="funnel-rate badge-blue badge">18.1%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">ลูกค้าเข้าตรวจ</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:7.8%;background:linear-gradient(90deg,#F59E0B,#FBBF24)">19 ราย</div>
+                        </div>
+                        <div class="funnel-rate badge-yellow badge">7.8%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">ลูกค้ารับห้อง</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#F97316,#FB923C)">22 ราย</div>
+                        </div>
+                        <div class="funnel-rate badge-yellow badge">9.1%</div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">โอนสำเร็จ</div>
+                        <div class="funnel-bar-wrap">
+                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#10B981,#34D399)">22 ยูนิต</div>
+                        </div>
+                        <div class="funnel-rate badge-green badge">9.1%</div>
+                    </div>
+                </div>
+                <div id="funnel-note" style="margin-top:12px;padding:12px;background:#FEF3C7;border-radius:8px;font-size:12px;">
+                    <strong><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด 85.6%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Conversion Rate รายเดือน (Walk:Presale)</div>
+                <canvas id="chartConversion" height="280"></canvas>
+                <div style="margin-top:12px;font-size:12px;color:var(--text-light)">
+                    * Conversion Rate = จำนวน Walk-in ต่อ 1 ยูนิต Presale (ยิ่งน้อยยิ่งดี)<br>
+                    * เป้าหมาย: ≤ 5:1
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. PROJECT PERFORMANCE ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-building"></i>
+            <h2>Project Performance — ผลงานรายโครงการ</h2>
+        </div>
+        <div class="chart-card full" style="margin-bottom:16px;">
+            <div class="chart-title">เปรียบเทียบผลงานรายโครงการ YTD 2026</div>
+            <div style="overflow-x:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>โครงการ</th>
+                            <th>Status</th>
+                            <th class="num">โอน (MB)</th>
+                            <th class="num">โอน (Units)</th>
+                            <th class="num">Gross Presale (MB)</th>
+                            <th class="num">Gross Presale (Units)</th>
+                            <th class="num">Net Presale (MB)</th>
+                            <th class="num">Walk-in</th>
+                            <th class="num">Conversion</th>
+                            <th>ประเมิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>PYVE ราชพฤกษ์ สิรินธร</strong></td>
+                            <td><span class="badge badge-yellow">Closing</span></td>
+                            <td class="num">16.94</td>
+                            <td class="num">2</td>
+                            <td class="num">16.93</td>
+                            <td class="num">2</td>
+                            <td class="num">16.93</td>
+                            <td class="num">17</td>
+                            <td class="num">4.0:1</td>
+                            <td><span class="badge badge-green">ดี</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PYVE วงแหวน รามอินทรา</strong></td>
+                            <td><span class="badge badge-blue">Existing</span></td>
+                            <td class="num">14.78</td>
+                            <td class="num">4</td>
+                            <td class="num">78.08</td>
+                            <td class="num">10</td>
+                            <td class="num">78.08</td>
+                            <td class="num">102</td>
+                            <td class="num">11.8:1</td>
+                            <td><span class="badge badge-yellow">ปานกลาง</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>The Thamm บางนา-เทพารักษ์</strong></td>
+                            <td><span class="badge badge-blue">Existing</span></td>
+                            <td class="num">42.39</td>
+                            <td class="num">16</td>
+                            <td class="num">129.92</td>
+                            <td class="num">42</td>
+                            <td class="num">100.88</td>
+                            <td class="num">124</td>
+                            <td class="num">3.3:1</td>
+                            <td><span class="badge badge-green">ดีมาก</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>The Thamm ราชพฤกษ์-สวนผัก</strong></td>
+                            <td><span class="badge badge-green">New Launch</span></td>
+                            <td class="num">0</td>
+                            <td class="num">0</td>
+                            <td class="num">0</td>
+                            <td class="num">0</td>
+                            <td class="num">0</td>
+                            <td class="num">0</td>
+                            <td class="num">-</td>
+                            <td><span class="badge badge-yellow">ยังไม่เปิด</span></td>
+                        </tr>
+                        <tr style="background:#F8FAFC; font-weight:700;">
+                            <td><strong>TOTAL</strong></td>
+                            <td></td>
+                            <td class="num">74.10</td>
+                            <td class="num">22</td>
+                            <td class="num">224.93</td>
+                            <td class="num">54</td>
+                            <td class="num">195.89</td>
+                            <td class="num">243</td>
+                            <td class="num">5.15:1</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">Gross Presale (MB) รายโครงการ</div>
+                <canvas id="chartProjectPresale" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Walk-in รายโครงการ — Q1 vs Q2</div>
+                <canvas id="chartProjectWalk" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 7. QUARTERLY COMPARISON ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-chart-bar"></i>
+            <h2>Quarterly Trend — เปรียบเทียบรายไตรมาส</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">เปรียบเทียบ Q1 vs Q2 — KPI หลัก</div>
+                <canvas id="chartQuarterly" height="280"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">แนวโน้มรายเดือน — Presale & Transfer (MB)</div>
+                <canvas id="chartMonthlyTrend" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 9. BANK EVALUATION ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-university"></i>
+            <h2>ผลธนาคาร — Bank Evaluation Summary</h2>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">จำนวนเคสยื่นกู้แยกธนาคาร (ลาดกระบัง)</div>
+                <canvas id="chartBankBar" height="260"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">อัตราอนุมัติแยกธนาคาร (ลาดกระบัง)</div>
+                <div style="overflow-x:auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ธนาคาร</th>
+                                <th class="num">ยื่น</th>
+                                <th class="num">อนุมัติ</th>
+                                <th class="num">ปฎิเสธ</th>
+                                <th class="num">อัตราอนุมัติ</th>
+                                <th>ประเมิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>GHB</td><td class="num">105</td><td class="num">32</td><td class="num">38</td><td class="num">45.7%</td><td><span class="badge badge-yellow">ปานกลาง</span></td></tr>
+                            <tr><td>KTB</td><td class="num">28</td><td class="num">17</td><td class="num">7</td><td class="num">70.8%</td><td><span class="badge badge-green">ดี</span></td></tr>
+                            <tr><td>TMB</td><td class="num">40</td><td class="num">17</td><td class="num">5</td><td class="num">77.3%</td><td><span class="badge badge-green">ดีมาก</span></td></tr>
+                            <tr><td>SCB</td><td class="num">29</td><td class="num">18</td><td class="num">5</td><td class="num">78.3%</td><td><span class="badge badge-green">ดีมาก</span></td></tr>
+                            <tr><td>K-bank</td><td class="num">10</td><td class="num">5</td><td class="num">1</td><td class="num">83.3%</td><td><span class="badge badge-green">ดีมาก</span></td></tr>
+                            <tr><td>GSB</td><td class="num">23</td><td class="num">9</td><td class="num">5</td><td class="num">64.3%</td><td><span class="badge badge-yellow">ปานกลาง</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 10. MANAGEMENT INSIGHT ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-lightbulb"></i>
+            <h2>Management Insight — สรุปเชิงบริหาร</h2>
+        </div>
+        <div class="insight-grid">
+            <div class="insight-box positive">
+                <div class="insight-title"><i class="fas fa-check-circle" style="color:var(--success)"></i> สิ่งที่ทำได้ดี</div>
+                <ul class="insight-list">
+                    <li>The Thamm บางนา-เทพารักษ์ เป็นโครงการหลักที่สร้างรายได้มากที่สุด — โอน 42.39 MB (57% ของยอดรวม)</li>
+                    <li>Conversion Rate รวม 5.15:1 ดีกว่าเป้าหมาย 4.99:1</li>
+                    <li>Q1 ห้องผ่าน QC ทำได้ 130% ของเป้า แสดงว่าทีม Construction ทำงานเร็ว</li>
+                    <li>Gross Presale ทำได้ 54.3% ของเป้า — แนวโน้มดี</li>
+                </ul>
+            </div>
+            <div class="insight-box negative">
+                <div class="insight-title"><i class="fas fa-exclamation-circle" style="color:var(--danger)"></i> ปัญหาที่พบ</div>
+                <ul class="insight-list">
+                    <li>ยอดโอน Revenue ทำได้เพียง 30.9% — ต่ำกว่าเป้ามาก ต้องเร่งปิดยอดโอน</li>
+                    <li>2nd Walk++ ทำได้เพียง 38% ของเป้า — Follow-up ลูกค้ากลับมาเยี่ยมชมต่ำ</li>
+                    <li>Q2 มีข้อมูล Actual เฉพาะ เม.ย. บางส่วน — อาจมีปัญหาบันทึกข้อมูล</li>
+                    <li>Bank อนุมัติ Cash + Bank = 0 (เป้า 2) — ยังไม่มีลูกค้าโอนสด+แบงค์อนุมัติตาม Target</li>
+                </ul>
+            </div>
+            <div class="insight-box warning">
+                <div class="insight-title"><i class="fas fa-shield-alt" style="color:var(--warning)"></i> ความเสี่ยงที่ต้องระวัง</div>
+                <ul class="insight-list">
+                    <li>GHB มีอัตรา Reject สูง (45.7% อนุมัติ) — ควรแนะนำลูกค้ายื่น KTB/SCB/TMB แทน</li>
+                    <li>โครงการ The Thamm ราชพฤกษ์-สวนผัก และ Dummy ยังไม่เปิดขาย — ต้องเร่งเปิด H2</li>
+                    <li>Walk-in Q2 ลดลงจาก Q1 (89 vs 154) — ควรเพิ่มงบการตลาด</li>
+                </ul>
+            </div>
+            <div class="insight-box info">
+                <div class="insight-title"><i class="fas fa-rocket" style="color:var(--accent)"></i> โอกาสเพิ่มยอด</div>
+                <ul class="insight-list">
+                    <li>The Thamm บางนา Conversion 3.3:1 — โครงการที่ปิดขายได้ง่ายที่สุด ควรเพิ่ม Walk-in เข้าโครงการนี้</li>
+                    <li>PYVE รามอินทรา มี Walk-in สูง 102 แต่ Conversion 11.8:1 — ปรับปรุง Sales Pitch จะเพิ่มยอด</li>
+                    <li>ห้องผ่าน QC ทำได้ดี — สามารถเร่งกระบวนการตรวจและโอนได้เร็วขึ้น</li>
+                </ul>
+            </div>
+            <div class="insight-box strategy">
+                <div class="insight-title"><i class="fas fa-chess-king" style="color:#8B5CF6"></i> สิ่งที่ต้องทำ 7 วัน</div>
+                <ul class="insight-list">
+                    <li>เร่ง Follow-up ลูกค้าที่เข้าชม Q2 ที่ยังไม่ปิด — ติดต่อภายใน 48 ชม.</li>
+                    <li>เร่งโอนลูกค้าที่ผ่าน QC แล้ว 15 ราย ที่ยังไม่โอน</li>
+                    <li>ตรวจสอบและแก้ไขข้อมูลที่ขาดหายใน Q2 Excel</li>
+                    <li>ประชุมทีม Sales ทบทวน Pipeline ลูกค้าที่ค้างสัญญา</li>
+                </ul>
+            </div>
+            <div class="insight-box strategy">
+                <div class="insight-title"><i class="fas fa-calendar-check" style="color:#8B5CF6"></i> สิ่งที่ต้องติดตาม 30 วัน</div>
+                <ul class="insight-list">
+                    <li>เตรียมเปิดขาย The Thamm ราชพฤกษ์-สวนผัก (กำหนด H2 2026)</li>
+                    <li>ทบทวนงบการตลาดดิจิทัล — Walk-in ลดลง ควรเพิ่มช่องทาง Online</li>
+                    <li>ประเมินผลงาน Sales Ranking H1 และวาง KPI H2</li>
+                    <li>ติดตามอัตราอนุมัติ GHB — หากยังต่ำให้แนะนำลูกค้าเปลี่ยนธนาคาร</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 11. DATA IMPROVEMENT RECOMMENDATIONS ===== -->
+    <div class="section">
+        <div class="section-header">
+            <i class="fas fa-database"></i>
+            <h2>ข้อเสนอแนะปรับปรุง Excel — เพื่อ Dashboard ที่สมบูรณ์ขึ้น</h2>
+        </div>
+        <div class="chart-card full">
+            <div style="overflow-x:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Column ที่ควรเพิ่ม</th>
+                            <th>ประโยชน์</th>
+                            <th>ใน Sheet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>ช่องทางการตลาด (Marketing Channel)</td><td>วิเคราะห์ ROI ต่อช่องทาง (Facebook, Google, Walk-in, Agent, Referral)</td><td>Q1-Q4, Sales sheets</td></tr>
+                        <tr><td>2</td><td>งบโฆษณา (Ad Spend) ต่อช่องทาง</td><td>คำนวณ Cost per Lead, Cost per Booking</td><td>Sheet ใหม่</td></tr>
+                        <tr><td>3</td><td>วันที่ Follow-up / จำนวนครั้ง Follow-up</td><td>วัดประสิทธิภาพ Sales ในการติดตามลูกค้า</td><td>Sales sheets</td></tr>
+                        <tr><td>4</td><td>เหตุผลที่ลูกค้า Cancel</td><td>วิเคราะห์สาเหตุที่ลูกค้าไม่ปิดการขาย</td><td>Sales sheets</td></tr>
+                        <tr><td>5</td><td>Lead Source (แหล่งที่มาของลูกค้า)</td><td>ระบุแหล่งที่มาแต่ละราย Walk-in</td><td>Sales sheets</td></tr>
+                        <tr><td>6</td><td>วันที่นัดตรวจ / ผล QC แต่ละรอบ</td><td>วัด Lead Time การตรวจบ้านถึงโอน</td><td>Construction sheets</td></tr>
+                        <tr><td>7</td><td>ราคาตาราง vs ราคาสุทธิ (Discount Rate)</td><td>วิเคราะห์ส่วนลดเฉลี่ยที่ให้ลูกค้า</td><td>Sales sheets</td></tr>
+                        <tr><td>8</td><td>สถานะปัจจุบันของลูกค้า (Active Pipeline)</td><td>แยกลูกค้า Hot / Warm / Cold</td><td>Sheet ใหม่</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div style="background:var(--primary);color:white;text-align:center;padding:20px;font-size:12px;">
+    <p>© 2026 Initial Estate Co., Ltd. — Executive Dashboard | Confidential — For Management Use Only</p>
+    <p style="opacity:0.6;margin-top:4px;">Data Source: Lead Lag 2026.xlsx | Generated by Dashboard System</p>
+</div>
+
+<script>
+Chart.defaults.font.family = "'Sarabun', 'Inter', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+
+const COLORS = {
+    primary:'#1B2A4A', gold:'#C9A84C', blue:'#3B82F6', green:'#10B981',
+    red:'#EF4444', purple:'#8B5CF6', orange:'#F97316', pink:'#EC4899',
+    cyan:'#06B6D4', gray:'#94A3B8'
+};
+
+// ── PER-PROJECT DATA (quarterly breakdown) ───────────────────
+const PROJECT_DATA = {
+    pyve_ratchaphruek: {
+        name: 'PYVE ราชพฤกษ์ สิรินธร',
+        transferMB:    { actual:[16.94, 0] },
+        transferUnits: { actual:[2, 0] },
+        presaleMB:     { actual:[16.933, 0] },
+        presaleUnits:  { actual:[2, 0] },
+        pipeline:      { qc:[0,0], inspect:[2,0], receive:[2,0], transfer:[2,0] },
+        conversion:    [4.25, null],
+        walkin:        [17, 0],
+        kpiAll:{ transferMB:16.94, transferUnits:2, grossPresaleMB:16.93, grossPresaleUnits:2, walkin:17, qcPass:2, inspect:2, receive:2, netPresaleMB:16.93, convRate:'4.00', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00 },
+        kpiQ1: { transferMB:16.94, transferUnits:2, grossPresaleMB:16.93, grossPresaleUnits:2, walkin:17, qcPass:2, inspect:2, receive:2, netPresaleMB:16.93, convRate:'4.00', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00 },
+        kpiQ2: { transferMB:0,     transferUnits:0, grossPresaleMB:0,     grossPresaleUnits:0, walkin:0,  qcPass:0, inspect:0, receive:0, netPresaleMB:0,     convRate:'-',    convText:'ไม่มีข้อมูล Q2',       convClass:'neutral', convTarget:5.00 },
+        funnelAll:{ walkin:17, secondWalk:2, grossPresale:2, netPresale:2, inspect:2, receive:2, transfer:2 },
+        funnelQ1: { walkin:17, secondWalk:2, grossPresale:2, netPresale:2, inspect:2, receive:2, transfer:2 },
+        funnelQ2: { walkin:0,  secondWalk:0, grossPresale:0, netPresale:0, inspect:0, receive:0, transfer:0 }
+    },
+    pyve_ramintra: {
+        name: 'PYVE วงแหวน รามอินทรา',
+        transferMB:    { actual:[7.39, 7.39] },
+        transferUnits: { actual:[2, 2] },
+        presaleMB:     { actual:[39.789, 38.29] },
+        presaleUnits:  { actual:[5, 5] },
+        pipeline:      { qc:[0,0], inspect:[2,2], receive:[2,2], transfer:[2,2] },
+        conversion:    [11.2, 9.2],
+        walkin:        [56, 46],
+        kpiAll:{ transferMB:14.78, transferUnits:4, grossPresaleMB:78.08, grossPresaleUnits:10, walkin:102, qcPass:0, inspect:4, receive:4, netPresaleMB:78.08, convRate:'11.80', convText:'สูงกว่าเป้า 5.00:1', convClass:'down', convTarget:5.00 },
+        kpiQ1: { transferMB:7.39,  transferUnits:2, grossPresaleMB:39.79, grossPresaleUnits:5,  walkin:56,  qcPass:0, inspect:2, receive:2, netPresaleMB:39.79, convRate:'11.20', convText:'สูงกว่าเป้า 5.00:1', convClass:'down', convTarget:5.00 },
+        kpiQ2: { transferMB:7.39,  transferUnits:2, grossPresaleMB:38.29, grossPresaleUnits:5,  walkin:46,  qcPass:0, inspect:2, receive:2, netPresaleMB:38.29, convRate:'9.20',  convText:'สูงกว่าเป้า 5.00:1', convClass:'down', convTarget:5.00 },
+        funnelAll:{ walkin:102, secondWalk:15, grossPresale:10, netPresale:10, inspect:4, receive:4, transfer:4 },
+        funnelQ1: { walkin:56,  secondWalk:8,  grossPresale:5,  netPresale:5,  inspect:2, receive:2, transfer:2 },
+        funnelQ2: { walkin:46,  secondWalk:7,  grossPresale:5,  netPresale:5,  inspect:2, receive:2, transfer:2 }
+    },
+    thamm_bangna: {
+        name: 'The Thamm บางนา-เทพารักษ์',
+        transferMB:    { actual:[24.08, 18.31] },
+        transferUnits: { actual:[10, 6] },
+        presaleMB:     { actual:[79.096, 50.821] },
+        presaleUnits:  { actual:[25, 17] },
+        pipeline:      { qc:[13,2], inspect:[14,5], receive:[14,8], transfer:[12,8] },
+        conversion:    [3.24, 2.69],
+        walkin:        [81, 43],
+        kpiAll:{ transferMB:42.39, transferUnits:16, grossPresaleMB:129.92, grossPresaleUnits:42, walkin:124, qcPass:13, inspect:13, receive:14, netPresaleMB:100.88, convRate:'3.30', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00 },
+        kpiQ1: { transferMB:24.08, transferUnits:10, grossPresaleMB:79.10,  grossPresaleUnits:25, walkin:81,  qcPass:13, inspect:14, receive:14, netPresaleMB:59.00,  convRate:'3.24', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00 },
+        kpiQ2: { transferMB:18.31, transferUnits:6,  grossPresaleMB:50.82,  grossPresaleUnits:17, walkin:43,  qcPass:2,  inspect:5,  receive:8,  netPresaleMB:41.88,  convRate:'2.69', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00 },
+        funnelAll:{ walkin:124, secondWalk:18, grossPresale:42, netPresale:32, inspect:13, receive:14, transfer:16 },
+        funnelQ1: { walkin:81,  secondWalk:12, grossPresale:25, netPresale:20, inspect:14, receive:14, transfer:10 },
+        funnelQ2: { walkin:43,  secondWalk:6,  grossPresale:17, netPresale:12, inspect:5,  receive:8,  transfer:6 }
+    }
+};
+
+// ── ฟังก์ชันสร้าง dataset รายโครงการ ─────────────────────────
+function getProjectDataset(pKey, qKey) {
+    const proj = PROJECT_DATA[pKey];
+    const idx = qKey === 'Q1' ? [0] : qKey === 'Q2' ? [1] : [0, 1];
+    const quarters = qKey === 'Q1' ? ['Q1'] : qKey === 'Q2' ? ['Q2'] : ['Q1', 'Q2'];
+    const s = arr => idx.map(i => arr[i]);
+    const kpi    = qKey === 'Q1' ? proj.kpiQ1    : qKey === 'Q2' ? proj.kpiQ2    : proj.kpiAll;
+    const funnel = qKey === 'Q1' ? proj.funnelQ1  : qKey === 'Q2' ? proj.funnelQ2 : proj.funnelAll;
+
+    // Project chart – highlight selected project
+    const projOrder  = ['pyve_ratchaphruek','pyve_ramintra','thamm_bangna'];
+    const pi         = projOrder.indexOf(pKey);
+    const hi         = (i, c1, c2) => i === pi ? c1 : c2;
+    const allLabels4 = ['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา','The Thamm ราชพฤกษ์'];
+    const allLabels3 = ['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา'];
+
+    const presaleQ1 = [16.933, 39.789, 79.096, 0];
+    const presaleQ2 = [0, 38.29, 50.821, 0];
+    const walkQ1    = [17, 56, 81];
+    const walkQ2    = [0,  46, 43];
+
+    const mkPresale = (data, label, col) => ({
+        label, data, borderRadius:6,
+        backgroundColor: allLabels4.map((_,i) => hi(i, col, 'rgba(148,163,184,0.3)'))
+    });
+    const mkWalk = (data, label, col) => ({
+        label, data, borderRadius:6,
+        backgroundColor: allLabels3.map((_,i) => hi(i, col, 'rgba(148,163,184,0.3)'))
+    });
+
+    const presaleDS = qKey === 'Q1' ? [mkPresale(presaleQ1,'Q1 Actual (MB)',COLORS.blue)]
+                    : qKey === 'Q2' ? [mkPresale(presaleQ2,'Q2 Actual (MB)',COLORS.green)]
+                    : [mkPresale(presaleQ1,'Q1 Actual (MB)',COLORS.blue), mkPresale(presaleQ2,'Q2 Actual (MB)',COLORS.green)];
+    const walkDS    = qKey === 'Q1' ? [mkWalk(walkQ1,'Q1 Walk-in',COLORS.blue)]
+                    : qKey === 'Q2' ? [mkWalk(walkQ2,'Q2 Walk-in',COLORS.orange)]
+                    : [mkWalk(walkQ1,'Q1 Walk-in',COLORS.blue), mkWalk(walkQ2,'Q2 Walk-in',COLORS.orange)];
+
+    const qDatasets = qKey === 'all'
+        ? [
+            { label:'Q1', data:[proj.kpiQ1.transferMB, proj.kpiQ1.grossPresaleMB, proj.kpiQ1.walkin, proj.kpiQ1.qcPass, proj.kpiQ1.inspect, proj.kpiQ1.receive], borderColor:COLORS.blue,   backgroundColor:'rgba(59,130,246,0.15)',  pointBackgroundColor:COLORS.blue },
+            { label:'Q2', data:[proj.kpiQ2.transferMB, proj.kpiQ2.grossPresaleMB, proj.kpiQ2.walkin, proj.kpiQ2.qcPass, proj.kpiQ2.inspect, proj.kpiQ2.receive], borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)',  pointBackgroundColor:COLORS.orange }
+          ]
+        : [{ label:(qKey==='Q1'?'Q1':'Q2')+' '+proj.name,
+             data:[(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).transferMB,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).grossPresaleMB,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).walkin,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).qcPass,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).inspect,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).receive],
+             borderColor:qKey==='Q1'?COLORS.blue:COLORS.orange, backgroundColor:qKey==='Q1'?'rgba(59,130,246,0.15)':'rgba(249,115,22,0.15)', pointBackgroundColor:qKey==='Q1'?COLORS.blue:COLORS.orange }];
+
+    return {
+        isProject: true,
+        projectName: proj.name,
+        months: quarters,
+        transferMB:    { actual: s(proj.transferMB.actual) },
+        transferUnits: { actual: s(proj.transferUnits.actual) },
+        pipeline:      { qc:s(proj.pipeline.qc), inspect:s(proj.pipeline.inspect), receive:s(proj.pipeline.receive), transfer:s(proj.pipeline.transfer) },
+        presaleMB:     { actual: s(proj.presaleMB.actual) },
+        presaleUnits:  { actual: s(proj.presaleUnits.actual) },
+        conversion:    s(proj.conversion),
+        walkin:        s(proj.walkin),
+        kpi, funnel,
+        projectPresale:{ labels:allLabels4, datasets:presaleDS },
+        projectWalk:   { labels:allLabels3, datasets:walkDS },
+        quarterly:     { labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'], datasets:qDatasets }
+    };
+}
+
+// ── DATA STORE ──────────────────────────────────────────────
+const DATA = {
+    all: {
+        months: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.'],
+        transferMB:    { target:[23.03,36.56,50.09,30.58,36.49], actual:[18.955,7.668,21.788,25.693,0] },
+        transferUnits: { target:[4,7,10,7,9],                    actual:[5,1,6,8,0] },
+        pipeline:      { qc:[3,4,6,1,1], inspect:[5,5,4,1,4], receive:[7,5,2,5,3], transfer:[5,1,6,8,0] },
+        presaleMB:     { target:[48.93,78.86,83.71,69.52,80.33], actual:[42.172,32.276,61.37,68,21.111] },
+        presaleUnits:  { target:[9,16,20,16,18],                 actual:[8,8,16,16,6] },
+        conversion:    [9.13,7.0,3.06,3.88,6.33],
+        walkin:        [65,48,41,54,35],
+        kpi: {
+            transferMB:74.10, targetTransferMB:239.94, transferUnits:22, targetTransferUnits:49,
+            grossPresaleMB:224.93, targetPresaleMB:414.15, grossPresaleUnits:54, targetPresaleUnits:92,
+            walkin:243, targetWalkin:367, qcPass:15, targetQC:28,
+            inspect:19, targetInspect:43, receive:22, targetReceive:48,
+            netPresaleMB:195.89, targetNetPresale:414.15,
+            convRate:'5.15', convText:'สูงกว่าเป้า 4.99:1', convClass:'down', convTarget:4.99
+        },
+        funnel:{ walkin:243, secondWalk:35, grossPresale:54, netPresale:44, inspect:19, receive:22, transfer:22 },
+        projectPresale:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา','The Thamm ราชพฤกษ์'],
+            datasets:[
+                { label:'Q1 Actual (MB)', data:[16.933,39.789,79.096,0], backgroundColor:COLORS.blue, borderRadius:6 },
+                { label:'Q2 Actual (MB)', data:[0,38.29,50.821,0],       backgroundColor:COLORS.green, borderRadius:6 }
+            ]},
+        projectWalk:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา'],
+            datasets:[
+                { label:'Q1 Walk-in', data:[17,56,81], backgroundColor:COLORS.blue,   borderRadius:6 },
+                { label:'Q2 Walk-in', data:[0,46,43],  backgroundColor:COLORS.orange, borderRadius:6 }
+            ]},
+        quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
+            datasets:[
+                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14], borderColor:COLORS.blue,   backgroundColor:'rgba(59,130,246,0.15)',  pointBackgroundColor:COLORS.blue },
+                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],      borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)', pointBackgroundColor:COLORS.orange }
+            ]}
+    },
+    Q1: {
+        months: ['ม.ค.', 'ก.พ.', 'มี.ค.'],
+        transferMB:    { target:[23.03,36.56,50.09], actual:[18.955,7.668,21.788] },
+        transferUnits: { target:[4,7,10],            actual:[5,1,6] },
+        pipeline:      { qc:[3,4,6], inspect:[5,5,4], receive:[7,5,2], transfer:[5,1,6] },
+        presaleMB:     { target:[48.93,78.86,83.71], actual:[42.172,32.276,61.37] },
+        presaleUnits:  { target:[9,16,20],           actual:[8,8,16] },
+        conversion:    [9.13,7.0,3.06],
+        walkin:        [65,48,41],
+        kpi: {
+            transferMB:48.41, targetTransferMB:109.68, transferUnits:12, targetTransferUnits:21,
+            grossPresaleMB:135.82, targetPresaleMB:211.50, grossPresaleUnits:32, targetPresaleUnits:45,
+            walkin:154, targetWalkin:220, qcPass:13, targetQC:10,
+            inspect:14, targetInspect:26, receive:14, targetReceive:29,
+            netPresaleMB:118.25, targetNetPresale:211.50,
+            convRate:'4.81', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00
+        },
+        funnel:{ walkin:154, secondWalk:22, grossPresale:32, netPresale:28, inspect:14, receive:14, transfer:12 },
+        projectPresale:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา','The Thamm ราชพฤกษ์'],
+            datasets:[{ label:'Q1 Actual (MB)', data:[16.933,39.789,79.096,0], backgroundColor:COLORS.blue, borderRadius:6 }]},
+        projectWalk:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา'],
+            datasets:[{ label:'Q1 Walk-in', data:[17,56,81], backgroundColor:COLORS.blue, borderRadius:6 }]},
+        quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
+            datasets:[
+                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14],   borderColor:COLORS.blue, backgroundColor:'rgba(59,130,246,0.15)', pointBackgroundColor:COLORS.blue },
+                { label:'Q1 Target', data:[109.68,211.50,220,10,26,29],  borderColor:COLORS.gray, backgroundColor:'rgba(148,163,184,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
+            ]}
+    },
+    Q2: {
+        months: ['เม.ย.', 'พ.ค.'],
+        transferMB:    { target:[30.58,36.49], actual:[25.693,0] },
+        transferUnits: { target:[7,9],         actual:[8,0] },
+        pipeline:      { qc:[1,1], inspect:[1,4], receive:[5,3], transfer:[8,0] },
+        presaleMB:     { target:[69.52,80.33], actual:[68,21.111] },
+        presaleUnits:  { target:[16,18],       actual:[16,6] },
+        conversion:    [3.88,6.33],
+        walkin:        [54,35],
+        kpi: {
+            transferMB:25.69, targetTransferMB:67.07, transferUnits:8, targetTransferUnits:16,
+            grossPresaleMB:89.11, targetPresaleMB:149.85, grossPresaleUnits:22, targetPresaleUnits:34,
+            walkin:89, targetWalkin:147, qcPass:2, targetQC:18,
+            inspect:5, targetInspect:17, receive:8, targetReceive:19,
+            netPresaleMB:77.64, targetNetPresale:149.85,
+            convRate:'4.05', convText:'ดีกว่าเป้า 5.00:1', convClass:'up', convTarget:5.00
+        },
+        funnel:{ walkin:89, secondWalk:13, grossPresale:22, netPresale:16, inspect:5, receive:8, transfer:8 },
+        projectPresale:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา','The Thamm ราชพฤกษ์'],
+            datasets:[{ label:'Q2 Actual (MB)', data:[0,38.29,50.821,0], backgroundColor:COLORS.green, borderRadius:6 }]},
+        projectWalk:{ labels:['PYVE ราชพฤกษ์','PYVE รามอินทรา','The Thamm บางนา'],
+            datasets:[{ label:'Q2 Walk-in', data:[0,46,43], backgroundColor:COLORS.orange, borderRadius:6 }]},
+        quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
+            datasets:[
+                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],   borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)', pointBackgroundColor:COLORS.orange },
+                { label:'Q2 Target', data:[67.07,149.85,147,18,17,19], borderColor:COLORS.gray, backgroundColor:'rgba(148,163,184,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
+            ]}
+    }
+};
+
+// ── HELPERS ─────────────────────────────────────────────────
+let charts = {};
+function p(a,t){ return Math.min(999, Math.round(a/t*1000)/10); }
+
+// ── UPDATE KPI CARDS ────────────────────────────────────────
+function updateKPIs(data, qKey) {
+    const k = data.kpi;
+    const convPct = Math.min(100, Math.round(k.convTarget / parseFloat(k.convRate) * 1000)/10);
+    const convIcon = k.convClass==='up' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>';
+    const qcPct = p(k.qcPass, k.targetQC);
+    const qcClass = qcPct >= 100 ? 'up' : 'neutral';
+    const qcIcon = qcPct >= 100 ? '<i class="fas fa-arrow-up"></i>' : '';
+    const spanLabels = { all:'Q1 + Q2 (ข้อมูล Actual)', Q1:'Q1 ม.ค.–มี.ค. (Actual)', Q2:'Q2 เม.ย.–มิ.ย. (Actual, ถึง พ.ค.)' };
+    if (data.isProject) {
+        const qLabel = qKey === 'Q1' ? 'Q1 2026' : qKey === 'Q2' ? 'Q2 2026' : 'YTD 2026';
+        document.getElementById('summary-span').textContent = data.projectName + ' — ' + qLabel;
+    } else {
+        document.getElementById('summary-span').textContent = spanLabels[qKey];
+    }
+
+    // ── KPI sub-text helper: เป้า (all-projects) หรือ สัดส่วน (per-project) ──
+    const total = DATA[qKey].kpi;
+    const sub1 = data.isProject
+        ? (act, tot) => `สัดส่วน ${p(act,tot)}% ของยอดรวม`
+        : (act, tgt) => `เป้า ${typeof tgt==='number'?tgt.toFixed(2):tgt} (${p(act,tgt)}%)`;
+    const sub1MB = data.isProject
+        ? (act) => `สัดส่วน ${p(act,total.transferMB)}% ของยอดรวม`
+        : (act, tgt) => `เป้า ${tgt.toFixed(2)} MB (${p(act,tgt)}%)`;
+
+    document.getElementById('kpi-row1').innerHTML = `
+        <div class="kpi-card gold">
+            <div class="kpi-label">ยอดโอน (Revenue)</div>
+            <div class="kpi-value">${k.transferMB.toFixed(2)} <small>MB</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.transferMB,total.transferMB)}% ของยอดรวม` : `เป้า ${k.targetTransferMB.toFixed(2)} MB (${p(k.transferMB,k.targetTransferMB)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.transferMB,total.transferMB):p(k.transferMB,k.targetTransferMB)}%;background:var(--secondary)"></div></div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">จำนวนโอน (Units)</div>
+            <div class="kpi-value">${k.transferUnits} <small>ยูนิต</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.transferUnits,total.transferUnits)}% ของยอดรวม` : `เป้า ${k.targetTransferUnits} ยูนิต (${p(k.transferUnits,k.targetTransferUnits)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.transferUnits,total.transferUnits):p(k.transferUnits,k.targetTransferUnits)}%;background:var(--accent)"></div></div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-label">Gross Presale</div>
+            <div class="kpi-value">${k.grossPresaleMB.toFixed(2)} <small>MB</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.grossPresaleMB,total.grossPresaleMB)}% ของยอดรวม` : `เป้า ${k.targetPresaleMB.toFixed(2)} MB (${p(k.grossPresaleMB,k.targetPresaleMB)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.grossPresaleMB,total.grossPresaleMB):p(k.grossPresaleMB,k.targetPresaleMB)}%;background:var(--success)"></div></div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">Presale Units (Gross)</div>
+            <div class="kpi-value">${k.grossPresaleUnits} <small>ยูนิต</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.grossPresaleUnits,total.grossPresaleUnits)}% ของยอดรวม` : `เป้า ${k.targetPresaleUnits} ยูนิต (${p(k.grossPresaleUnits,k.targetPresaleUnits)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.grossPresaleUnits,total.grossPresaleUnits):p(k.grossPresaleUnits,k.targetPresaleUnits)}%;background:#8B5CF6"></div></div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">Walk-in ทั้งหมด</div>
+            <div class="kpi-value">${k.walkin} <small>ราย</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.walkin,total.walkin)}% ของยอดรวม` : `เป้า ${k.targetWalkin} ราย (${p(k.walkin,k.targetWalkin)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.walkin,total.walkin):p(k.walkin,k.targetWalkin)}%;background:var(--accent)"></div></div>
+        </div>`;
+
+    document.getElementById('kpi-row2').innerHTML = `
+        <div class="kpi-card green">
+            <div class="kpi-label">ห้องผ่าน QC</div>
+            <div class="kpi-value">${k.qcPass} <small>ยูนิต</small></div>
+            <div class="kpi-sub ${data.isProject?'neutral':qcClass}">${data.isProject ? `สัดส่วน ${p(k.qcPass,Math.max(1,total.qcPass))}% ของยอดรวม` : `${qcIcon} ${qcPct}% ของเป้า ${qKey==='all'?'Q1':qKey}`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.qcPass,Math.max(1,total.qcPass)):Math.min(100,qcPct)}%;background:var(--success)"></div></div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">ลูกค้าเข้าตรวจ</div>
+            <div class="kpi-value">${k.inspect} <small>ราย</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.inspect,Math.max(1,total.inspect))}% ของยอดรวม` : `เป้า ${k.targetInspect} ราย (${p(k.inspect,k.targetInspect)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.inspect,Math.max(1,total.inspect)):p(k.inspect,k.targetInspect)}%;background:var(--accent)"></div></div>
+        </div>
+        <div class="kpi-card gold">
+            <div class="kpi-label">ลูกค้ารับห้อง</div>
+            <div class="kpi-value">${k.receive} <small>ราย</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.receive,Math.max(1,total.receive))}% ของยอดรวม` : `เป้า ${k.targetReceive} ราย (${p(k.receive,k.targetReceive)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.receive,Math.max(1,total.receive)):p(k.receive,k.targetReceive)}%;background:var(--secondary)"></div></div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-label">Net Presale</div>
+            <div class="kpi-value">${k.netPresaleMB.toFixed(2)} <small>MB</small></div>
+            <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.netPresaleMB,Math.max(1,total.netPresaleMB))}% ของยอดรวม` : `เป้า ${k.targetNetPresale.toFixed(2)} MB (${p(k.netPresaleMB,k.targetNetPresale)}%)`}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.netPresaleMB,Math.max(1,total.netPresaleMB)):p(k.netPresaleMB,k.targetNetPresale)}%;background:var(--success)"></div></div>
+        </div>
+        <div class="kpi-card red">
+            <div class="kpi-label">Conversion Rate</div>
+            <div class="kpi-value">${k.convRate} <small>:1</small></div>
+            <div class="kpi-sub ${k.convClass}">${convIcon} ${k.convText}</div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${convPct}%;background:var(--success)"></div></div>
+        </div>`;
+}
+
+// ── UPDATE FUNNEL ────────────────────────────────────────────
+function updateFunnel(data) {
+    const f = data.funnel;
+    if (!f.walkin) {
+        document.getElementById('funnel-container').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light);font-size:13px;">ไม่มีข้อมูลในช่วงเวลาที่เลือก</div>';
+        document.getElementById('funnel-note').innerHTML = '';
+        return;
+    }
+    const pp = v => (v / f.walkin * 100).toFixed(1);
+    const drop = ((f.walkin - f.secondWalk) / f.walkin * 100).toFixed(1);
+    document.getElementById('funnel-container').innerHTML = `
+        <div class="funnel-step">
+            <div class="funnel-label">Walk-in (1st)</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA)">${f.walkin} ราย</div></div>
+            <div class="funnel-rate">100%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">2nd Walk++</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.secondWalk)}%;background:linear-gradient(90deg,#6366F1,#818CF8)">${f.secondWalk} ราย</div></div>
+            <div class="funnel-rate badge-yellow badge">${pp(f.secondWalk)}%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">Gross Presale</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.grossPresale)}%;background:linear-gradient(90deg,#8B5CF6,#A78BFA)">${f.grossPresale} ยูนิต</div></div>
+            <div class="funnel-rate badge-blue badge">${pp(f.grossPresale)}%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">Net Presale</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.netPresale)}%;background:linear-gradient(90deg,#EC4899,#F472B6)">${f.netPresale} ยูนิต</div></div>
+            <div class="funnel-rate badge-blue badge">${pp(f.netPresale)}%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">ลูกค้าเข้าตรวจ</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.inspect)}%;background:linear-gradient(90deg,#F59E0B,#FBBF24)">${f.inspect} ราย</div></div>
+            <div class="funnel-rate badge-yellow badge">${pp(f.inspect)}%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">ลูกค้ารับห้อง</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.receive)}%;background:linear-gradient(90deg,#F97316,#FB923C)">${f.receive} ราย</div></div>
+            <div class="funnel-rate badge-yellow badge">${pp(f.receive)}%</div>
+        </div>
+        <div class="funnel-step">
+            <div class="funnel-label">โอนสำเร็จ</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.transfer)}%;background:linear-gradient(90deg,#10B981,#34D399)">${f.transfer} ยูนิต</div></div>
+            <div class="funnel-rate badge-green badge">${pp(f.transfer)}%</div>
+        </div>`;
+    document.getElementById('funnel-note').innerHTML =
+        `<strong><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด ${drop}%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก`;
+}
+
+// ── UPDATE CHARTS ────────────────────────────────────────────
+function updateCharts(data) {
+    const d = data;
+    Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+    charts = {};
+
+    const barOpts = (yLabel) => ({
+        responsive:true,
+        plugins:{ legend:{ position:'top' } },
+        scales:{ y:{ beginAtZero:true, title:{ display:true, text:yLabel } } }
+    });
+
+    const tgt = (tData, bg, bc) => ({ label:'Target', data:tData, backgroundColor:bg, borderColor:bc, borderWidth:2, borderDash:[5,5] });
+    charts.transferMB = new Chart(document.getElementById('chartTransferMB'), {
+        type:'bar', data:{ labels:d.months, datasets: d.isProject
+            ? [{ label:'Actual (MB)', data:d.transferMB.actual, backgroundColor:COLORS.gold, borderRadius:6 }]
+            : [tgt(d.transferMB.target,'rgba(201,168,76,0.3)',COLORS.gold), { label:'Actual (MB)', data:d.transferMB.actual, backgroundColor:COLORS.gold, borderRadius:6 }]
+        }, options:barOpts('ล้านบาท (MB)')
+    });
+    charts.transferUnits = new Chart(document.getElementById('chartTransferUnits'), {
+        type:'bar', data:{ labels:d.months, datasets: d.isProject
+            ? [{ label:'Actual (Units)', data:d.transferUnits.actual, backgroundColor:COLORS.blue, borderRadius:6 }]
+            : [tgt(d.transferUnits.target,'rgba(59,130,246,0.3)',COLORS.blue), { label:'Actual (Units)', data:d.transferUnits.actual, backgroundColor:COLORS.blue, borderRadius:6 }]
+        }, options:barOpts('ยูนิต')
+    });
+
+    charts.pipeline = new Chart(document.getElementById('chartPipeline'), {
+        type:'bar', data:{ labels:d.months, datasets:[
+            { label:'ห้องผ่าน QC',     data:d.pipeline.qc,       backgroundColor:COLORS.cyan },
+            { label:'ลูกค้าเข้าตรวจ', data:d.pipeline.inspect,  backgroundColor:COLORS.blue },
+            { label:'ลูกค้ารับห้อง',  data:d.pipeline.receive,  backgroundColor:COLORS.purple },
+            { label:'โอนสำเร็จ',      data:d.pipeline.transfer, backgroundColor:COLORS.green }
+        ]}, options:{ responsive:true, plugins:{ legend:{ position:'top' } }, scales:{ x:{ stacked:false }, y:{ beginAtZero:true, title:{ display:true, text:'ยูนิต' } } } }
+    });
+
+    charts.bankDonut = new Chart(document.getElementById('chartBankDonut'), {
+        type:'doughnut', data:{ labels:['GHB','KTB','TMB','SCB','K-bank','GSB','Bay','BBL'],
+            datasets:[{ data:[105,28,40,29,10,23,1,3],
+                backgroundColor:['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#94A3B8'],
+                borderWidth:2, borderColor:'#fff' }]},
+        options:{ responsive:true, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ font:{ size:11 } } } } }
+    });
+
+    charts.presaleMB = new Chart(document.getElementById('chartPresaleMB'), {
+        type:'bar', data:{ labels:d.months, datasets: d.isProject
+            ? [{ label:'Actual (MB)', data:d.presaleMB.actual, backgroundColor:COLORS.green, borderRadius:6 }]
+            : [tgt(d.presaleMB.target,'rgba(16,185,129,0.3)',COLORS.green), { label:'Actual (MB)', data:d.presaleMB.actual, backgroundColor:COLORS.green, borderRadius:6 }]
+        }, options:barOpts('ล้านบาท (MB)')
+    });
+    charts.presaleUnits = new Chart(document.getElementById('chartPresaleUnits'), {
+        type:'bar', data:{ labels:d.months, datasets: d.isProject
+            ? [{ label:'Actual (Units)', data:d.presaleUnits.actual, backgroundColor:COLORS.purple, borderRadius:6 }]
+            : [tgt(d.presaleUnits.target,'rgba(139,92,246,0.3)',COLORS.purple), { label:'Actual (Units)', data:d.presaleUnits.actual, backgroundColor:COLORS.purple, borderRadius:6 }]
+        }, options:barOpts('ยูนิต')
+    });
+
+    charts.conversion = new Chart(document.getElementById('chartConversion'), {
+        type:'line', data:{ labels:d.months, datasets:[
+            { label:'Conversion (Walk:Presale)', data:d.conversion, borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.1)', fill:true, tension:0.4, pointRadius:6, pointBackgroundColor:COLORS.orange },
+            { label:'เป้าหมาย (5:1)', data:d.months.map(()=>5), borderColor:COLORS.red, borderDash:[8,4], pointRadius:0, fill:false }
+        ]}, options:{ responsive:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Ratio (ยิ่งน้อยยิ่งดี)' } } } }
+    });
+
+    charts.projectPresale = new Chart(document.getElementById('chartProjectPresale'), {
+        type:'bar', data:{ labels:d.projectPresale.labels, datasets:d.projectPresale.datasets },
+        options:{ responsive:true, indexAxis:'y', plugins:{ legend:{ position:'top' } }, scales:{ x:{ beginAtZero:true, title:{ display:true, text:'ล้านบาท (MB)' } } } }
+    });
+
+    charts.projectWalk = new Chart(document.getElementById('chartProjectWalk'), {
+        type:'bar', data:{ labels:d.projectWalk.labels, datasets:d.projectWalk.datasets },
+        options:{ responsive:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true } } }
+    });
+
+    charts.quarterly = new Chart(document.getElementById('chartQuarterly'), {
+        type:'radar', data:{ labels:d.quarterly.labels, datasets:d.quarterly.datasets },
+        options:{ responsive:true, scales:{ r:{ beginAtZero:true } } }
+    });
+
+    charts.monthlyTrend = new Chart(document.getElementById('chartMonthlyTrend'), {
+        type:'line', data:{ labels:d.months, datasets:[
+            { label:'Gross Presale (MB)', data:d.presaleMB.actual, borderColor:COLORS.green, backgroundColor:'rgba(16,185,129,0.1)', fill:true, tension:0.4, pointRadius:5 },
+            { label:'Transfer (MB)',      data:d.transferMB.actual, borderColor:COLORS.gold,  backgroundColor:'rgba(201,168,76,0.1)',  fill:true, tension:0.4, pointRadius:5 },
+            { label:'Walk-in', data:d.walkin, borderColor:COLORS.blue, borderDash:[5,3], fill:false, tension:0.4, pointRadius:4, yAxisID:'y1' }
+        ]}, options:{ responsive:true, plugins:{ legend:{ position:'top' } },
+            scales:{
+                y:  { beginAtZero:true, title:{ display:true, text:'ล้านบาท (MB)' }, position:'left' },
+                y1: { beginAtZero:true, title:{ display:true, text:'Walk-in (ราย)' }, position:'right', grid:{ drawOnChartArea:false } }
+            }}
+    });
+
+    charts.bankBar = new Chart(document.getElementById('chartBankBar'), {
+        type:'bar', data:{ labels:['GHB','KTB','TMB','SCB','K-bank','GSB'],
+            datasets:[
+                { label:'อนุมัติ (Approved)', data:[32,17,17,18,5,9],  backgroundColor:COLORS.green, borderRadius:4 },
+                { label:'ปฎิเสธ (Rejected)',  data:[38,7,5,5,1,5],    backgroundColor:COLORS.red,   borderRadius:4 },
+                { label:'รอดำเนินการ',         data:[35,4,18,6,4,9],   backgroundColor:COLORS.gray,  borderRadius:4 }
+            ]},
+        options:{ responsive:true, plugins:{ legend:{ position:'top' } }, scales:{ x:{ stacked:true }, y:{ stacked:true, beginAtZero:true } } }
+    });
+}
+
+// ── MAIN UPDATE ──────────────────────────────────────────────
+function updateDashboard(qKey, pKey) {
+    const data = (pKey && pKey !== 'all')
+        ? getProjectDataset(pKey, qKey)
+        : DATA[qKey];
+    updateKPIs(data, qKey);
+    updateFunnel(data);
+    updateCharts(data);
+}
+
+// ── FILTER HANDLER ───────────────────────────────────────────
+function applyFilters() {
+    const q = document.getElementById('filterQuarter').value;
+    const proj = document.getElementById('filterProject').value;
+    const qKey = (q === 'Q1' || q === 'Q2') ? q : 'all';
+    const pKey = proj !== 'all' ? proj : 'all';
+
+    // อัปเดต header date
+    const dateEl = document.querySelector('.header-date');
+    const projNames = { pyve_ratchaphruek:'PYVE ราชพฤกษ์', pyve_ramintra:'PYVE รามอินทรา', thamm_bangna:'The Thamm บางนา' };
+    const qText = q === 'Q1' ? 'Q1 (ม.ค.–มี.ค.)' : q === 'Q2' ? 'Q2 (เม.ย.–มิ.ย.)' : 'Q1-Q2';
+    const pText = pKey !== 'all' ? ' | ' + projNames[pKey] : '';
+    dateEl.innerHTML = `<i class="fas fa-calendar-alt"></i>&nbsp; ข้อมูล ณ ${qText} 2026${pText}`;
+
+    updateDashboard(qKey, pKey);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+updateDashboard('all', 'all');
+</script>
+
+</body>
+</html>
