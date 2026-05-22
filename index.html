@@ -9,21 +9,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --primary: #1B2A4A;
-            --primary-light: #2C4270;
-            --secondary: #C9A84C;
-            --secondary-light: #E0C76E;
-            --accent: #3B82F6;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --danger: #EF4444;
-            --bg: #F0F2F5;
+            --primary: #40434B;
+            --primary-light: #5A5D66;
+            --secondary: #B5855E;
+            --secondary-light: #D4BA98;
+            --accent: #535432;
+            --success: #497B68;
+            --warning: #B5855E;
+            --danger: #B35B4E;
+            --bg: #F4F3EF;
             --card-bg: #FFFFFF;
-            --text: #1E293B;
-            --text-light: #64748B;
-            --border: #E2E8F0;
-            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
-            --shadow-lg: 0 4px 24px rgba(0,0,0,0.12);
+            --text: #2F3137;
+            --text-light: #6D7078;
+            --border: #DDD8CF;
+            --shadow: 0 1px 3px rgba(64,67,75,0.08), 0 4px 12px rgba(64,67,75,0.05);
+            --shadow-lg: 0 4px 24px rgba(64,67,75,0.14);
             --radius: 12px;
         }
 
@@ -46,7 +46,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 20px rgba(64,67,75,0.22);
         }
         .header-left { display: flex; align-items: center; gap: 16px; }
         .header-logo {
@@ -97,7 +97,7 @@
         .filter-bar select:focus, .filter-bar input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 3px rgba(181,133,94,0.18);
         }
 
         /* Main Container */
@@ -128,6 +128,7 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
+        .kpi-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
         .kpi-card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -148,7 +149,7 @@
         .kpi-card.green::before { background: var(--success); }
         .kpi-card.gold::before { background: var(--secondary); }
         .kpi-card.red::before { background: var(--danger); }
-        .kpi-card.purple::before { background: #8B5CF6; }
+        .kpi-card.purple::before { background: var(--accent); }
         .kpi-label { font-size: 12px; color: var(--text-light); font-weight: 500; margin-bottom: 4px; }
         .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); }
         .kpi-value small { font-size: 14px; color: var(--text-light); font-weight: 400; }
@@ -213,7 +214,7 @@
             padding: 10px 12px;
             border-bottom: 1px solid var(--border);
         }
-        .data-table tr:hover td { background: #F8FAFC; }
+        .data-table tr:hover td { background: #F8F6F2; }
         .data-table .num { text-align: right; font-family: 'Inter', monospace; }
         .badge {
             display: inline-block;
@@ -222,10 +223,10 @@
             font-size: 11px;
             font-weight: 600;
         }
-        .badge-green { background: #D1FAE5; color: #065F46; }
-        .badge-red { background: #FEE2E2; color: #991B1B; }
-        .badge-yellow { background: #FEF3C7; color: #92400E; }
-        .badge-blue { background: #DBEAFE; color: #1E40AF; }
+        .badge-green { background: #DCE9E2; color: #2F5E4D; }
+        .badge-red { background: #F2DED9; color: #8E3F35; }
+        .badge-yellow { background: #F1E5D6; color: #7A593E; }
+        .badge-blue { background: #E4E8E2; color: #40434B; }
 
         /* Insight Box */
         .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
@@ -240,7 +241,7 @@
         .insight-box.negative { border-color: var(--danger); }
         .insight-box.warning { border-color: var(--warning); }
         .insight-box.info { border-color: var(--accent); }
-        .insight-box.strategy { border-color: #8B5CF6; }
+        .insight-box.strategy { border-color: var(--accent); }
         .insight-title {
             font-size: 14px;
             font-weight: 700;
@@ -268,10 +269,12 @@
         @media (max-width: 1024px) {
             .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid-5 { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
             .container { padding: 12px; }
             .kpi-grid { grid-template-columns: 1fr; }
+            .kpi-grid-5 { grid-template-columns: 1fr; }
             .header { padding: 12px 16px; flex-direction: column; gap: 8px; }
             .filter-bar { padding: 12px 16px; }
         }
@@ -319,7 +322,7 @@
         <option value="pyve_ramintra">PYVE รามอินทรา</option>
         <option value="thamm_bangna">The Thamm บางนา</option>
     </select>
-    <select id="filterMonth">
+    <select id="filterMonth" onchange="applyFilters()">
         <option value="all">ทุกเดือน</option>
         <option value="jan">มกราคม</option>
         <option value="feb">กุมภาพันธ์</option>
@@ -341,7 +344,7 @@
             <h2>Executive Summary — ภาพรวมธุรกิจ YTD 2026</h2>
             <span id="summary-span">Q1 + Q2 (ข้อมูล Actual)</span>
         </div>
-        <div id="kpi-row1" class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div id="kpi-row1" class="kpi-grid kpi-grid-5">
             <!-- Revenue Transfer -->
             <div class="kpi-card gold">
                 <div class="kpi-label">ยอดโอน (Revenue)</div>
@@ -368,7 +371,7 @@
                 <div class="kpi-label">Presale Units (Gross)</div>
                 <div class="kpi-value">54 <small>ยูนิต</small></div>
                 <div class="kpi-sub neutral">เป้า 92 ยูนิต (58.7%)</div>
-                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:58.7%;background:#8B5CF6"></div></div>
+                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:58.7%;background:var(--accent)"></div></div>
             </div>
             <!-- Walk-in -->
             <div class="kpi-card blue">
@@ -380,7 +383,7 @@
         </div>
 
         <!-- Second Row KPIs -->
-        <div id="kpi-row2" class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); margin-top: 16px;">
+        <div id="kpi-row2" class="kpi-grid kpi-grid-5" style="margin-top: 16px;">
             <div class="kpi-card green">
                 <div class="kpi-label">ห้องผ่าน QC</div>
                 <div class="kpi-value">15 <small>ยูนิต</small></div>
@@ -481,55 +484,55 @@
                     <div class="funnel-step">
                         <div class="funnel-label">Walk-in (1st)</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA)">243 ราย</div>
+                            <div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#535432,#6F7150)">243 ราย</div>
                         </div>
                         <div class="funnel-rate">100%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">2nd Walk++</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:14.4%;background:linear-gradient(90deg,#6366F1,#818CF8)">35 ราย</div>
+                            <div class="funnel-bar" style="width:14.4%;background:linear-gradient(90deg,#B5855E,#D4BA98)">35 ราย</div>
                         </div>
                         <div class="funnel-rate badge-yellow badge">14.4%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">Gross Presale</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:22.2%;background:linear-gradient(90deg,#8B5CF6,#A78BFA)">54 ยูนิต</div>
+                            <div class="funnel-bar" style="width:22.2%;background:linear-gradient(90deg,#535432,#BBCBBC)">54 ยูนิต</div>
                         </div>
                         <div class="funnel-rate badge-blue badge">22.2%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">Net Presale</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:18.1%;background:linear-gradient(90deg,#EC4899,#F472B6)">44 ยูนิต</div>
+                            <div class="funnel-bar" style="width:18.1%;background:linear-gradient(90deg,#8C6B5A,#D4BA98)">44 ยูนิต</div>
                         </div>
                         <div class="funnel-rate badge-blue badge">18.1%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">ลูกค้าเข้าตรวจ</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:7.8%;background:linear-gradient(90deg,#F59E0B,#FBBF24)">19 ราย</div>
+                            <div class="funnel-bar" style="width:7.8%;background:linear-gradient(90deg,#B5855E,#D4BA98)">19 ราย</div>
                         </div>
                         <div class="funnel-rate badge-yellow badge">7.8%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">ลูกค้ารับห้อง</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#F97316,#FB923C)">22 ราย</div>
+                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#A06442,#B5855E)">22 ราย</div>
                         </div>
                         <div class="funnel-rate badge-yellow badge">9.1%</div>
                     </div>
                     <div class="funnel-step">
                         <div class="funnel-label">โอนสำเร็จ</div>
                         <div class="funnel-bar-wrap">
-                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#10B981,#34D399)">22 ยูนิต</div>
+                            <div class="funnel-bar" style="width:9.1%;background:linear-gradient(90deg,#497B68,#BBCBBC)">22 ยูนิต</div>
                         </div>
                         <div class="funnel-rate badge-green badge">9.1%</div>
                     </div>
                 </div>
                 <div id="funnel-note" style="margin-top:12px;padding:12px;background:#FEF3C7;border-radius:8px;font-size:12px;">
-                    <strong><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด 85.6%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก
+                    <strong><i class="fas fa-exclamation-triangle" style="color:#B5855E"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด 85.6%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก
                 </div>
             </div>
             <div class="chart-card">
@@ -743,7 +746,7 @@
                 </ul>
             </div>
             <div class="insight-box strategy">
-                <div class="insight-title"><i class="fas fa-chess-king" style="color:#8B5CF6"></i> สิ่งที่ต้องทำ 7 วัน</div>
+                <div class="insight-title"><i class="fas fa-chess-king" style="color:var(--accent)"></i> สิ่งที่ต้องทำ 7 วัน</div>
                 <ul class="insight-list">
                     <li>เร่ง Follow-up ลูกค้าที่เข้าชม Q2 ที่ยังไม่ปิด — ติดต่อภายใน 48 ชม.</li>
                     <li>เร่งโอนลูกค้าที่ผ่าน QC แล้ว 15 ราย ที่ยังไม่โอน</li>
@@ -752,7 +755,7 @@
                 </ul>
             </div>
             <div class="insight-box strategy">
-                <div class="insight-title"><i class="fas fa-calendar-check" style="color:#8B5CF6"></i> สิ่งที่ต้องติดตาม 30 วัน</div>
+                <div class="insight-title"><i class="fas fa-calendar-check" style="color:var(--accent)"></i> สิ่งที่ต้องติดตาม 30 วัน</div>
                 <ul class="insight-list">
                     <li>เตรียมเปิดขาย The Thamm ราชพฤกษ์-สวนผัก (กำหนด H2 2026)</li>
                     <li>ทบทวนงบการตลาดดิจิทัล — Walk-in ลดลง ควรเพิ่มช่องทาง Online</li>
@@ -810,9 +813,9 @@ Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
 
 const COLORS = {
-    primary:'#1B2A4A', gold:'#C9A84C', blue:'#3B82F6', green:'#10B981',
-    red:'#EF4444', purple:'#8B5CF6', orange:'#F97316', pink:'#EC4899',
-    cyan:'#06B6D4', gray:'#94A3B8'
+    primary:'#40434B', gold:'#B5855E', blue:'#535432', green:'#497B68',
+    red:'#B35B4E', purple:'#535432', orange:'#A06442', pink:'#8C6B5A',
+    cyan:'#BBCBBC', gray:'#8C8F93'
 };
 
 // ── PER-PROJECT DATA (quarterly breakdown) ───────────────────
@@ -890,11 +893,11 @@ function getProjectDataset(pKey, qKey) {
 
     const mkPresale = (data, label, col) => ({
         label, data, borderRadius:6,
-        backgroundColor: allLabels4.map((_,i) => hi(i, col, 'rgba(148,163,184,0.3)'))
+        backgroundColor: allLabels4.map((_,i) => hi(i, col, 'rgba(140,143,147,0.3)'))
     });
     const mkWalk = (data, label, col) => ({
         label, data, borderRadius:6,
-        backgroundColor: allLabels3.map((_,i) => hi(i, col, 'rgba(148,163,184,0.3)'))
+        backgroundColor: allLabels3.map((_,i) => hi(i, col, 'rgba(140,143,147,0.3)'))
     });
 
     const presaleDS = qKey === 'Q1' ? [mkPresale(presaleQ1,'Q1 Actual (MB)',COLORS.blue)]
@@ -906,12 +909,12 @@ function getProjectDataset(pKey, qKey) {
 
     const qDatasets = qKey === 'all'
         ? [
-            { label:'Q1', data:[proj.kpiQ1.transferMB, proj.kpiQ1.grossPresaleMB, proj.kpiQ1.walkin, proj.kpiQ1.qcPass, proj.kpiQ1.inspect, proj.kpiQ1.receive], borderColor:COLORS.blue,   backgroundColor:'rgba(59,130,246,0.15)',  pointBackgroundColor:COLORS.blue },
-            { label:'Q2', data:[proj.kpiQ2.transferMB, proj.kpiQ2.grossPresaleMB, proj.kpiQ2.walkin, proj.kpiQ2.qcPass, proj.kpiQ2.inspect, proj.kpiQ2.receive], borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)',  pointBackgroundColor:COLORS.orange }
+            { label:'Q1', data:[proj.kpiQ1.transferMB, proj.kpiQ1.grossPresaleMB, proj.kpiQ1.walkin, proj.kpiQ1.qcPass, proj.kpiQ1.inspect, proj.kpiQ1.receive], borderColor:COLORS.blue,   backgroundColor:'rgba(83,84,50,0.15)',  pointBackgroundColor:COLORS.blue },
+            { label:'Q2', data:[proj.kpiQ2.transferMB, proj.kpiQ2.grossPresaleMB, proj.kpiQ2.walkin, proj.kpiQ2.qcPass, proj.kpiQ2.inspect, proj.kpiQ2.receive], borderColor:COLORS.orange, backgroundColor:'rgba(160,100,66,0.15)',  pointBackgroundColor:COLORS.orange }
           ]
         : [{ label:(qKey==='Q1'?'Q1':'Q2')+' '+proj.name,
              data:[(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).transferMB,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).grossPresaleMB,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).walkin,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).qcPass,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).inspect,(qKey==='Q1'?proj.kpiQ1:proj.kpiQ2).receive],
-             borderColor:qKey==='Q1'?COLORS.blue:COLORS.orange, backgroundColor:qKey==='Q1'?'rgba(59,130,246,0.15)':'rgba(249,115,22,0.15)', pointBackgroundColor:qKey==='Q1'?COLORS.blue:COLORS.orange }];
+             borderColor:qKey==='Q1'?COLORS.blue:COLORS.orange, backgroundColor:qKey==='Q1'?'rgba(83,84,50,0.15)':'rgba(160,100,66,0.15)', pointBackgroundColor:qKey==='Q1'?COLORS.blue:COLORS.orange }];
 
     return {
         isProject: true,
@@ -963,8 +966,8 @@ const DATA = {
             ]},
         quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
             datasets:[
-                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14], borderColor:COLORS.blue,   backgroundColor:'rgba(59,130,246,0.15)',  pointBackgroundColor:COLORS.blue },
-                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],      borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)', pointBackgroundColor:COLORS.orange }
+                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14], borderColor:COLORS.blue,   backgroundColor:'rgba(83,84,50,0.15)',  pointBackgroundColor:COLORS.blue },
+                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],      borderColor:COLORS.orange, backgroundColor:'rgba(160,100,66,0.15)', pointBackgroundColor:COLORS.orange }
             ]}
     },
     Q1: {
@@ -991,8 +994,8 @@ const DATA = {
             datasets:[{ label:'Q1 Walk-in', data:[17,56,81], backgroundColor:COLORS.blue, borderRadius:6 }]},
         quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
             datasets:[
-                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14],   borderColor:COLORS.blue, backgroundColor:'rgba(59,130,246,0.15)', pointBackgroundColor:COLORS.blue },
-                { label:'Q1 Target', data:[109.68,211.50,220,10,26,29],  borderColor:COLORS.gray, backgroundColor:'rgba(148,163,184,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
+                { label:'Q1 Actual', data:[48.41,135.82,154,13,14,14],   borderColor:COLORS.blue, backgroundColor:'rgba(83,84,50,0.15)', pointBackgroundColor:COLORS.blue },
+                { label:'Q1 Target', data:[109.68,211.50,220,10,26,29],  borderColor:COLORS.gray, backgroundColor:'rgba(140,143,147,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
             ]}
     },
     Q2: {
@@ -1019,21 +1022,150 @@ const DATA = {
             datasets:[{ label:'Q2 Walk-in', data:[0,46,43], backgroundColor:COLORS.orange, borderRadius:6 }]},
         quarterly:{ labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
             datasets:[
-                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],   borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.15)', pointBackgroundColor:COLORS.orange },
-                { label:'Q2 Target', data:[67.07,149.85,147,18,17,19], borderColor:COLORS.gray, backgroundColor:'rgba(148,163,184,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
+                { label:'Q2 Actual', data:[25.69,89.11,89,2,5,8],   borderColor:COLORS.orange, backgroundColor:'rgba(160,100,66,0.15)', pointBackgroundColor:COLORS.orange },
+                { label:'Q2 Target', data:[67.07,149.85,147,18,17,19], borderColor:COLORS.gray, backgroundColor:'rgba(140,143,147,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
             ]}
     }
 };
 
 // ── HELPERS ─────────────────────────────────────────────────
 let charts = {};
-function p(a,t){ return Math.min(999, Math.round(a/t*1000)/10); }
+function p(a,t){
+    if (!t) return 0;
+    return Math.min(999, Math.round(a/t*1000)/10);
+}
+
+const MONTH_META = {
+    jan: { label:'ม.ค.', dataKey:'all', index:0, quarter:'Q1' },
+    feb: { label:'ก.พ.', dataKey:'all', index:1, quarter:'Q1' },
+    mar: { label:'มี.ค.', dataKey:'all', index:2, quarter:'Q1' },
+    apr: { label:'เม.ย.', dataKey:'all', index:3, quarter:'Q2' },
+    may: { label:'พ.ค.', dataKey:'all', index:4, quarter:'Q2' }
+};
+
+function sum(arr) {
+    return arr.reduce((total, value) => total + (Number(value) || 0), 0);
+}
+
+function filterSeries(series, indexes) {
+    return indexes.map(i => series[i]);
+}
+
+function buildMonthlyDataset(qKey, monthKey) {
+    const meta = MONTH_META[monthKey];
+    if (!meta) return DATA[qKey];
+
+    const base = DATA.all;
+    const indexes = [meta.index];
+    const transferMBActual = filterSeries(base.transferMB.actual, indexes);
+    const transferMBTarget = filterSeries(base.transferMB.target, indexes);
+    const transferUnitsActual = filterSeries(base.transferUnits.actual, indexes);
+    const transferUnitsTarget = filterSeries(base.transferUnits.target, indexes);
+    const presaleMBActual = filterSeries(base.presaleMB.actual, indexes);
+    const presaleMBTarget = filterSeries(base.presaleMB.target, indexes);
+    const presaleUnitsActual = filterSeries(base.presaleUnits.actual, indexes);
+    const presaleUnitsTarget = filterSeries(base.presaleUnits.target, indexes);
+    const walkinActual = filterSeries(base.walkin, indexes);
+    const qcActual = filterSeries(base.pipeline.qc, indexes);
+    const inspectActual = filterSeries(base.pipeline.inspect, indexes);
+    const receiveActual = filterSeries(base.pipeline.receive, indexes);
+    const transferActual = filterSeries(base.pipeline.transfer, indexes);
+
+    const quarterBase = DATA[meta.quarter];
+    const monthShare = 1 / quarterBase.months.length;
+    const grossUnits = sum(presaleUnitsActual);
+    const walkin = sum(walkinActual);
+    const convRate = grossUnits ? (walkin / grossUnits) : 0;
+    const netPresaleRatio = quarterBase.kpi.grossPresaleMB ? quarterBase.kpi.netPresaleMB / quarterBase.kpi.grossPresaleMB : 1;
+    const secondWalkRatio = quarterBase.funnel.walkin ? quarterBase.funnel.secondWalk / quarterBase.funnel.walkin : 0;
+    const netPresaleUnitRatio = quarterBase.funnel.grossPresale ? quarterBase.funnel.netPresale / quarterBase.funnel.grossPresale : 1;
+
+    return {
+        ...base,
+        isMonth: true,
+        monthLabel: meta.label,
+        months: [meta.label],
+        transferMB:    { target:transferMBTarget, actual:transferMBActual },
+        transferUnits: { target:transferUnitsTarget, actual:transferUnitsActual },
+        pipeline: {
+            qc: qcActual,
+            inspect: inspectActual,
+            receive: receiveActual,
+            transfer: transferActual
+        },
+        presaleMB:    { target:presaleMBTarget, actual:presaleMBActual },
+        presaleUnits: { target:presaleUnitsTarget, actual:presaleUnitsActual },
+        conversion: filterSeries(base.conversion, indexes),
+        walkin: walkinActual,
+        kpi: {
+            transferMB: sum(transferMBActual),
+            targetTransferMB: sum(transferMBTarget),
+            transferUnits: sum(transferUnitsActual),
+            targetTransferUnits: sum(transferUnitsTarget),
+            grossPresaleMB: sum(presaleMBActual),
+            targetPresaleMB: sum(presaleMBTarget),
+            grossPresaleUnits: grossUnits,
+            targetPresaleUnits: sum(presaleUnitsTarget),
+            walkin,
+            targetWalkin: Math.round(quarterBase.kpi.targetWalkin * monthShare),
+            qcPass: sum(qcActual),
+            targetQC: Math.round(quarterBase.kpi.targetQC * monthShare),
+            inspect: sum(inspectActual),
+            targetInspect: Math.round(quarterBase.kpi.targetInspect * monthShare),
+            receive: sum(receiveActual),
+            targetReceive: Math.round(quarterBase.kpi.targetReceive * monthShare),
+            netPresaleMB: sum(presaleMBActual) * netPresaleRatio,
+            targetNetPresale: sum(presaleMBTarget),
+            convRate: convRate ? convRate.toFixed(2) : '-',
+            convText: convRate && convRate <= quarterBase.kpi.convTarget ? 'ดีกว่าเป้า 5.00:1' : 'สูงกว่าเป้า 5.00:1',
+            convClass: convRate && convRate <= quarterBase.kpi.convTarget ? 'up' : 'down',
+            convTarget: quarterBase.kpi.convTarget
+        },
+        funnel: {
+            walkin,
+            secondWalk: Math.round(walkin * secondWalkRatio),
+            grossPresale: grossUnits,
+            netPresale: Math.round(grossUnits * netPresaleUnitRatio),
+            inspect: sum(inspectActual),
+            receive: sum(receiveActual),
+            transfer: sum(transferActual)
+        },
+        quarterly: {
+            labels:['โอน (MB)','Presale (MB)','Walk-in','QC Pass','ลูกค้าตรวจ','ลูกค้ารับห้อง'],
+            datasets:[
+                { label:`${meta.label} Actual`, data:[sum(transferMBActual), sum(presaleMBActual), walkin, sum(qcActual), sum(inspectActual), sum(receiveActual)], borderColor:COLORS.blue, backgroundColor:'rgba(83,84,50,0.15)', pointBackgroundColor:COLORS.blue },
+                { label:`${meta.label} Target`, data:[sum(transferMBTarget), sum(presaleMBTarget), Math.round(quarterBase.kpi.targetWalkin * monthShare), Math.round(quarterBase.kpi.targetQC * monthShare), Math.round(quarterBase.kpi.targetInspect * monthShare), Math.round(quarterBase.kpi.targetReceive * monthShare)], borderColor:COLORS.gray, backgroundColor:'rgba(140,143,147,0.08)', pointBackgroundColor:COLORS.gray, borderDash:[5,5] }
+            ]
+        }
+    };
+}
+
+function updateMonthOptions(qKey, pKey) {
+    const monthSelect = document.getElementById('filterMonth');
+    const selected = monthSelect.value;
+    const projectMode = pKey !== 'all';
+
+    Array.from(monthSelect.options).forEach(option => {
+        if (option.value === 'all') {
+            option.disabled = false;
+            return;
+        }
+        const quarter = MONTH_META[option.value].quarter;
+        option.disabled = projectMode || (qKey !== 'all' && quarter !== qKey);
+    });
+
+    if (projectMode || (selected !== 'all' && monthSelect.selectedOptions[0].disabled)) {
+        monthSelect.value = 'all';
+    }
+    monthSelect.disabled = projectMode;
+}
 
 // ── UPDATE KPI CARDS ────────────────────────────────────────
 function updateKPIs(data, qKey) {
     const k = data.kpi;
-    const convPct = Math.min(100, Math.round(k.convTarget / parseFloat(k.convRate) * 1000)/10);
-    const convIcon = k.convClass==='up' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>';
+    const convValue = parseFloat(k.convRate);
+    const convPct = convValue ? Math.min(100, Math.round(k.convTarget / convValue * 1000)/10) : 0;
+    const convIcon = k.convClass==='up' ? '<i class="fas fa-arrow-up"></i>' : k.convClass==='down' ? '<i class="fas fa-arrow-down"></i>' : '';
     const qcPct = p(k.qcPass, k.targetQC);
     const qcClass = qcPct >= 100 ? 'up' : 'neutral';
     const qcIcon = qcPct >= 100 ? '<i class="fas fa-arrow-up"></i>' : '';
@@ -1041,6 +1173,8 @@ function updateKPIs(data, qKey) {
     if (data.isProject) {
         const qLabel = qKey === 'Q1' ? 'Q1 2026' : qKey === 'Q2' ? 'Q2 2026' : 'YTD 2026';
         document.getElementById('summary-span').textContent = data.projectName + ' — ' + qLabel;
+    } else if (data.isMonth) {
+        document.getElementById('summary-span').textContent = `${data.monthLabel} 2026 (Actual รายเดือน)`;
     } else {
         document.getElementById('summary-span').textContent = spanLabels[qKey];
     }
@@ -1077,7 +1211,7 @@ function updateKPIs(data, qKey) {
             <div class="kpi-label">Presale Units (Gross)</div>
             <div class="kpi-value">${k.grossPresaleUnits} <small>ยูนิต</small></div>
             <div class="kpi-sub neutral">${data.isProject ? `สัดส่วน ${p(k.grossPresaleUnits,total.grossPresaleUnits)}% ของยอดรวม` : `เป้า ${k.targetPresaleUnits} ยูนิต (${p(k.grossPresaleUnits,k.targetPresaleUnits)}%)`}</div>
-            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.grossPresaleUnits,total.grossPresaleUnits):p(k.grossPresaleUnits,k.targetPresaleUnits)}%;background:#8B5CF6"></div></div>
+            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${data.isProject?p(k.grossPresaleUnits,total.grossPresaleUnits):p(k.grossPresaleUnits,k.targetPresaleUnits)}%;background:#535432"></div></div>
         </div>
         <div class="kpi-card blue">
             <div class="kpi-label">Walk-in ทั้งหมด</div>
@@ -1132,41 +1266,41 @@ function updateFunnel(data) {
     document.getElementById('funnel-container').innerHTML = `
         <div class="funnel-step">
             <div class="funnel-label">Walk-in (1st)</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA)">${f.walkin} ราย</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#535432,#6F7150)">${f.walkin} ราย</div></div>
             <div class="funnel-rate">100%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">2nd Walk++</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.secondWalk)}%;background:linear-gradient(90deg,#6366F1,#818CF8)">${f.secondWalk} ราย</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.secondWalk)}%;background:linear-gradient(90deg,#B5855E,#D4BA98)">${f.secondWalk} ราย</div></div>
             <div class="funnel-rate badge-yellow badge">${pp(f.secondWalk)}%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">Gross Presale</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.grossPresale)}%;background:linear-gradient(90deg,#8B5CF6,#A78BFA)">${f.grossPresale} ยูนิต</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.grossPresale)}%;background:linear-gradient(90deg,#535432,#BBCBBC)">${f.grossPresale} ยูนิต</div></div>
             <div class="funnel-rate badge-blue badge">${pp(f.grossPresale)}%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">Net Presale</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.netPresale)}%;background:linear-gradient(90deg,#EC4899,#F472B6)">${f.netPresale} ยูนิต</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.netPresale)}%;background:linear-gradient(90deg,#8C6B5A,#D4BA98)">${f.netPresale} ยูนิต</div></div>
             <div class="funnel-rate badge-blue badge">${pp(f.netPresale)}%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">ลูกค้าเข้าตรวจ</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.inspect)}%;background:linear-gradient(90deg,#F59E0B,#FBBF24)">${f.inspect} ราย</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.inspect)}%;background:linear-gradient(90deg,#B5855E,#D4BA98)">${f.inspect} ราย</div></div>
             <div class="funnel-rate badge-yellow badge">${pp(f.inspect)}%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">ลูกค้ารับห้อง</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.receive)}%;background:linear-gradient(90deg,#F97316,#FB923C)">${f.receive} ราย</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.receive)}%;background:linear-gradient(90deg,#A06442,#B5855E)">${f.receive} ราย</div></div>
             <div class="funnel-rate badge-yellow badge">${pp(f.receive)}%</div>
         </div>
         <div class="funnel-step">
             <div class="funnel-label">โอนสำเร็จ</div>
-            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.transfer)}%;background:linear-gradient(90deg,#10B981,#34D399)">${f.transfer} ยูนิต</div></div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pp(f.transfer)}%;background:linear-gradient(90deg,#497B68,#BBCBBC)">${f.transfer} ยูนิต</div></div>
             <div class="funnel-rate badge-green badge">${pp(f.transfer)}%</div>
         </div>`;
     document.getElementById('funnel-note').innerHTML =
-        `<strong><i class="fas fa-exclamation-triangle" style="color:#F59E0B"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด ${drop}%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก`;
+        `<strong><i class="fas fa-exclamation-triangle" style="color:#B5855E"></i> จุดที่ลูกค้าหลุดมากที่สุด:</strong> Walk-in → 2nd Walk (หลุด ${drop}%) — ควรเร่งปรับปรุงการ Follow-up หลังลูกค้าเข้าชมครั้งแรก`;
 }
 
 // ── UPDATE CHARTS ────────────────────────────────────────────
@@ -1185,13 +1319,13 @@ function updateCharts(data) {
     charts.transferMB = new Chart(document.getElementById('chartTransferMB'), {
         type:'bar', data:{ labels:d.months, datasets: d.isProject
             ? [{ label:'Actual (MB)', data:d.transferMB.actual, backgroundColor:COLORS.gold, borderRadius:6 }]
-            : [tgt(d.transferMB.target,'rgba(201,168,76,0.3)',COLORS.gold), { label:'Actual (MB)', data:d.transferMB.actual, backgroundColor:COLORS.gold, borderRadius:6 }]
+            : [tgt(d.transferMB.target,'rgba(181,133,94,0.3)',COLORS.gold), { label:'Actual (MB)', data:d.transferMB.actual, backgroundColor:COLORS.gold, borderRadius:6 }]
         }, options:barOpts('ล้านบาท (MB)')
     });
     charts.transferUnits = new Chart(document.getElementById('chartTransferUnits'), {
         type:'bar', data:{ labels:d.months, datasets: d.isProject
             ? [{ label:'Actual (Units)', data:d.transferUnits.actual, backgroundColor:COLORS.blue, borderRadius:6 }]
-            : [tgt(d.transferUnits.target,'rgba(59,130,246,0.3)',COLORS.blue), { label:'Actual (Units)', data:d.transferUnits.actual, backgroundColor:COLORS.blue, borderRadius:6 }]
+            : [tgt(d.transferUnits.target,'rgba(83,84,50,0.3)',COLORS.blue), { label:'Actual (Units)', data:d.transferUnits.actual, backgroundColor:COLORS.blue, borderRadius:6 }]
         }, options:barOpts('ยูนิต')
     });
 
@@ -1207,7 +1341,7 @@ function updateCharts(data) {
     charts.bankDonut = new Chart(document.getElementById('chartBankDonut'), {
         type:'doughnut', data:{ labels:['GHB','KTB','TMB','SCB','K-bank','GSB','Bay','BBL'],
             datasets:[{ data:[105,28,40,29,10,23,1,3],
-                backgroundColor:['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#94A3B8'],
+                backgroundColor:['#535432','#497B68','#B5855E','#B35B4E','#535432','#8C6B5A','#BBCBBC','#8C8F93'],
                 borderWidth:2, borderColor:'#fff' }]},
         options:{ responsive:true, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ font:{ size:11 } } } } }
     });
@@ -1215,19 +1349,19 @@ function updateCharts(data) {
     charts.presaleMB = new Chart(document.getElementById('chartPresaleMB'), {
         type:'bar', data:{ labels:d.months, datasets: d.isProject
             ? [{ label:'Actual (MB)', data:d.presaleMB.actual, backgroundColor:COLORS.green, borderRadius:6 }]
-            : [tgt(d.presaleMB.target,'rgba(16,185,129,0.3)',COLORS.green), { label:'Actual (MB)', data:d.presaleMB.actual, backgroundColor:COLORS.green, borderRadius:6 }]
+            : [tgt(d.presaleMB.target,'rgba(73,123,104,0.3)',COLORS.green), { label:'Actual (MB)', data:d.presaleMB.actual, backgroundColor:COLORS.green, borderRadius:6 }]
         }, options:barOpts('ล้านบาท (MB)')
     });
     charts.presaleUnits = new Chart(document.getElementById('chartPresaleUnits'), {
         type:'bar', data:{ labels:d.months, datasets: d.isProject
             ? [{ label:'Actual (Units)', data:d.presaleUnits.actual, backgroundColor:COLORS.purple, borderRadius:6 }]
-            : [tgt(d.presaleUnits.target,'rgba(139,92,246,0.3)',COLORS.purple), { label:'Actual (Units)', data:d.presaleUnits.actual, backgroundColor:COLORS.purple, borderRadius:6 }]
+            : [tgt(d.presaleUnits.target,'rgba(83,84,50,0.3)',COLORS.purple), { label:'Actual (Units)', data:d.presaleUnits.actual, backgroundColor:COLORS.purple, borderRadius:6 }]
         }, options:barOpts('ยูนิต')
     });
 
     charts.conversion = new Chart(document.getElementById('chartConversion'), {
         type:'line', data:{ labels:d.months, datasets:[
-            { label:'Conversion (Walk:Presale)', data:d.conversion, borderColor:COLORS.orange, backgroundColor:'rgba(249,115,22,0.1)', fill:true, tension:0.4, pointRadius:6, pointBackgroundColor:COLORS.orange },
+            { label:'Conversion (Walk:Presale)', data:d.conversion, borderColor:COLORS.orange, backgroundColor:'rgba(160,100,66,0.1)', fill:true, tension:0.4, pointRadius:6, pointBackgroundColor:COLORS.orange },
             { label:'เป้าหมาย (5:1)', data:d.months.map(()=>5), borderColor:COLORS.red, borderDash:[8,4], pointRadius:0, fill:false }
         ]}, options:{ responsive:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Ratio (ยิ่งน้อยยิ่งดี)' } } } }
     });
@@ -1249,8 +1383,8 @@ function updateCharts(data) {
 
     charts.monthlyTrend = new Chart(document.getElementById('chartMonthlyTrend'), {
         type:'line', data:{ labels:d.months, datasets:[
-            { label:'Gross Presale (MB)', data:d.presaleMB.actual, borderColor:COLORS.green, backgroundColor:'rgba(16,185,129,0.1)', fill:true, tension:0.4, pointRadius:5 },
-            { label:'Transfer (MB)',      data:d.transferMB.actual, borderColor:COLORS.gold,  backgroundColor:'rgba(201,168,76,0.1)',  fill:true, tension:0.4, pointRadius:5 },
+            { label:'Gross Presale (MB)', data:d.presaleMB.actual, borderColor:COLORS.green, backgroundColor:'rgba(73,123,104,0.1)', fill:true, tension:0.4, pointRadius:5 },
+            { label:'Transfer (MB)',      data:d.transferMB.actual, borderColor:COLORS.gold,  backgroundColor:'rgba(181,133,94,0.1)',  fill:true, tension:0.4, pointRadius:5 },
             { label:'Walk-in', data:d.walkin, borderColor:COLORS.blue, borderDash:[5,3], fill:false, tension:0.4, pointRadius:4, yAxisID:'y1' }
         ]}, options:{ responsive:true, plugins:{ legend:{ position:'top' } },
             scales:{
@@ -1272,7 +1406,10 @@ function updateCharts(data) {
 
 // ── MAIN UPDATE ──────────────────────────────────────────────
 function updateDashboard(qKey, pKey) {
-    const data = (pKey && pKey !== 'all')
+    const monthKey = document.getElementById('filterMonth').value;
+    const data = (monthKey !== 'all' && (!pKey || pKey === 'all'))
+        ? buildMonthlyDataset(qKey, monthKey)
+        : (pKey && pKey !== 'all')
         ? getProjectDataset(pKey, qKey)
         : DATA[qKey];
     updateKPIs(data, qKey);
@@ -1286,18 +1423,22 @@ function applyFilters() {
     const proj = document.getElementById('filterProject').value;
     const qKey = (q === 'Q1' || q === 'Q2') ? q : 'all';
     const pKey = proj !== 'all' ? proj : 'all';
+    updateMonthOptions(qKey, pKey);
+    const monthKey = document.getElementById('filterMonth').value;
 
     // อัปเดต header date
     const dateEl = document.querySelector('.header-date');
     const projNames = { pyve_ratchaphruek:'PYVE ราชพฤกษ์', pyve_ramintra:'PYVE รามอินทรา', thamm_bangna:'The Thamm บางนา' };
     const qText = q === 'Q1' ? 'Q1 (ม.ค.–มี.ค.)' : q === 'Q2' ? 'Q2 (เม.ย.–มิ.ย.)' : 'Q1-Q2';
+    const monthText = monthKey !== 'all' ? ` | ${MONTH_META[monthKey].label}` : '';
     const pText = pKey !== 'all' ? ' | ' + projNames[pKey] : '';
-    dateEl.innerHTML = `<i class="fas fa-calendar-alt"></i>&nbsp; ข้อมูล ณ ${qText} 2026${pText}`;
+    dateEl.innerHTML = `<i class="fas fa-calendar-alt"></i>&nbsp; ข้อมูล ณ ${qText} 2026${monthText}${pText}`;
 
     updateDashboard(qKey, pKey);
 }
 
 // ── INIT ─────────────────────────────────────────────────────
+updateMonthOptions('all', 'all');
 updateDashboard('all', 'all');
 </script>
 
